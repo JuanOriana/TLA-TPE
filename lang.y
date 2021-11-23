@@ -77,7 +77,7 @@ instruction:
     | START         { main_init=TRUE; $$=NULL; };
 
 block: instruction DELIMETER block { $$ = (node_t *)add_element_to_list($3, $1); }
-    | instruction DELIMETER { $$ = (node_t *)add_instruction_list_node($1); }
+    | instruction DELIMETER { $$ = $1; }
 
 if: IF expression BRACK_OPEN block if_end { $$ = add_if_node($2, add_block_node($4), $5); };
 
