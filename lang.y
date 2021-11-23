@@ -94,12 +94,10 @@ type: NUMBER_TYPE | STRING_TYPE        ;
 
 assign: SYMBOL_NAME ASSIGN value { $$ = assign_variable_node($1, $3); };
 value: expression   { $$ = $1; }
-    | SYMBOL_NAME   { $$ = add_variable_reference($1); }
     | STRING        { $$ = add_text_node($1);   };
 
 
 write: WRITE expression                     { $$ = add_print_node($2); }
-    | WRITE SYMBOL_NAME                     { $$ = add_print_node(add_variable_reference($2)); }
     | WRITE STRING                          { $$ = add_print_node(add_text_node($2)); }
 
 read: READ SYMBOL_NAME                      { $$ = add_read_node(add_variable_reference($2)); };
@@ -110,6 +108,7 @@ expression: '(' expression ')'              { $$ = add_expression_node(add_opera
     | expression BIN_OP expression          { $$ = add_expression_node($1, add_operation_node($2), $3); }
     | expression '-' expression             { $$ = add_expression_node($1, add_operation_node("-"), $3); }
     | NUMBER                                { $$ = add_expression_node(add_number_node($1), NULL, NULL); }
+    | SYMBOL_NAME                           { $$ = add_variable_reference($1); }
 
 
 %%

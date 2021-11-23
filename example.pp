@@ -1,5 +1,8 @@
 number hola;
-string xd = "hola";
+string hola2;
+
+number xd;
 if(3){
-    hola = 2;
+    xd = hola * 2;
+    xd = xd + 1;
 };

@@ -53,8 +53,6 @@ void check_and_set_variables_internal(node_t *tree, var_node **var_list)
     while (aux != NULL)
     {
         node_t *node = (node_t *)aux->next_1;
-        fprintf(stderr, "%d\n", node->type);
-
         check_and_set_variables_rec(node, var_list);
         aux = aux->next_2;
     }
@@ -194,7 +192,7 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
     case EXPRESSION_NODE:;
         if (!check_var_type_in_expression(type, (node_t *)variable_node_var->value, var_list))
         {
-            ERROR("Variable %s is assigned a number when its actually a %s\n", variable_node_var->name, get_type_from_enum(variable_node_var->var_type));
+            ERROR("Variable %s is trying to be assigned an expresion with non-numeral values\n", variable_node_var->name);
             error = -1;
         }
         break;
