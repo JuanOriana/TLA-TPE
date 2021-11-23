@@ -31,8 +31,7 @@ typedef enum node_type
 // PRINT_NODE       X               content      X          X
 // READ_NODE        X               content      X          X
 // IF_NODE          X               condition    then       otherwise
-// WHILE_NODE       X               condition    block      X
-// BLOCK_NODE       X               i-list       X          X
+// WHILE_NODE       X               condition    first-i      X
 // INSTRUCTION_NODE X               instruction  next-node         X
 // NEGATION_NODE
 // EXPRESSION_NODE  X               first        second     third

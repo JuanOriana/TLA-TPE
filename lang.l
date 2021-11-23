@@ -37,7 +37,8 @@ size       { return SIZE; }
 
 !=|<=|>=|==                 { strcpy(yylval.string, yytext); return BIN_OP; }
 &&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
-\|\|		                    { strcpy(yylval.string, "||"); return BIN_OP; }
+\|\|	                    { strcpy(yylval.string, "||"); return BIN_OP; }
+\+		                { strcpy(yylval.string, yytext); return BIN_OP; }
 !		                    { strcpy(yylval.string, "!"); return UNI_OP; }
 
 

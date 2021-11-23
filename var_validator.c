@@ -34,6 +34,7 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list);
 int check_var_type_in_list_op(int type, node_t *node, var_node *var_list);
 int check_var_type_in_list_value(int type, node_t *node, var_node *var_list);
+static char *get_type_from_enum(int type);
 
 int check_and_set_variables(node_t *tree)
 { //inicializa la lista con un pseudo nodo para no pasar null
@@ -52,6 +53,8 @@ void check_and_set_variables_internal(node_t *tree, var_node **var_list)
     while (aux != NULL)
     {
         node_t *node = (node_t *)aux->next_1;
+        fprintf(stderr, "%d\n", node->type);
+
         check_and_set_variables_rec(node, var_list);
         aux = aux->next_2;
     }
@@ -67,48 +70,28 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
     {
     case VARIABLE_NODE:;
         variable_node *variable_node_var = (variable_node *)node;
-        if (variable_node_var->declared == TRUE && variable_node_var->value != NULL)
-        { //caso donde se define la var y asigna
+        if (variable_node_var->declared)
+        {
             if (check_if_exists(*var_list, variable_node_var->name) != -1)
             {
-                ERROR("Var %s already declared \n", variable_node_var->name);
+                ERROR("Variable %s already declared \n", variable_node_var->name);
                 error = -1;
             }
-            add_to_list(var_list, create_var_node(variable_node_var->var_type, variable_node_var->name)); //registrar la variable
-
-            check_var_types_in_value(variable_node_var->var_type, variable_node_var, *var_list); //revisar que la asigncion tiene variables/simbolos validos
+            add_to_list(var_list, create_var_node(variable_node_var->var_type, variable_node_var->name));
         }
-        if (variable_node_var->declared == TRUE && variable_node_var->value == NULL)
-        { //caso donde se define la var y no se asigna
-            if (check_if_exists(*var_list, variable_node_var->name) != -1)
-            {
-                ERROR("Var %s already declared \n", variable_node_var->name);
-                error = -1;
-            }
-            add_to_list(var_list, create_var_node(variable_node_var->var_type, variable_node_var->name)); //registrar la variable
-        }
-        if (variable_node_var->declared == FALSE && variable_node_var->value != NULL)
-        { //caso donde no se define la var pero se asigna
+        else
+        {
             int type = check_if_exists(*var_list, variable_node_var->name);
-
-            if (type == -1)
+            if (check_if_exists(*var_list, variable_node_var->name) == -1)
             {
-                ERROR("Var %s is not declared yet\n", variable_node_var->name);
+                ERROR("Variable %s is not declared yet\n", variable_node_var->name);
                 error = -1;
             }
             variable_node_var->var_type = type;
-            check_var_types_in_value(type, variable_node_var, *var_list); //revisar que la asigncion tiene variables/simbolos validos
         }
-        if (variable_node_var->declared == FALSE && variable_node_var->value == NULL)
-        { //caso donde solo se usa la var
-
-            int type = check_if_exists(*var_list, variable_node_var->name);
-            if (type == -1)
-            {
-                ERROR("Var %s not declared yet \n", variable_node_var->name);
-                error = -1;
-            }
-            variable_node_var->var_type = type;
+        if (variable_node_var->value != NULL)
+        {
+            check_var_types_in_value(variable_node_var->var_type, variable_node_var, *var_list);
         }
 
         break;
@@ -160,19 +143,9 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         }
         break;
     case IF_NODE:
-        /* 
-            if condition do
-                Block
-            else
-                Block
-            end
-            
-            */
-
-        ;
         if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
         { // miro que la condicion sea valida
-            ERROR("Var in write is type text in expression\n");
+            ERROR("An if condition may only contain numbers\n");
             error = -1;
         }
         (*var_list)->references++;
@@ -188,16 +161,9 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
 
         break;
     case WHILE_NODE:
-        /* 
-            while condition do
-                Block
-            end
-            
-            */
-
         if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
         { //buscar variables en condicion
-            ERROR("Var in write is type text in expression\n");
+            ERROR("A while condition may only contain numbers\n");
             error = -1;
         }
         (*var_list)->references++;
@@ -217,17 +183,18 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
 
     switch (variable_node_var->value->type)
     {
-    case TEXT_NODE:
+    case TEXT_NODE:;
         if (variable_node_var->var_type != STRING_TYPE)
         {
-            ERROR("Var %s is not of type text and assigned text\n", variable_node_var->name);
+            ERROR("Variable %s is assigned a string when its actually a %s\n",
+                  variable_node_var->name, get_type_from_enum(variable_node_var->var_type));
             error = -1;
         }
         break;
-    case EXPRESSION_NODE:
+    case EXPRESSION_NODE:;
         if (!check_var_type_in_expression(type, (node_t *)variable_node_var->value, var_list))
         {
-            ERROR("Var %s is of type number and assigned not number\n", variable_node_var->name);
+            ERROR("Variable %s is assigned a number when its actually a %s\n", variable_node_var->name, get_type_from_enum(variable_node_var->var_type));
             error = -1;
         }
         break;
@@ -235,7 +202,7 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
         int type = check_if_exists(var_list, ((variable_node *)variable_node_var->value)->name);
         if (type == -1)
         {
-            ERROR("Var %s not declared yet \n", ((variable_node *)variable_node_var->value)->name);
+            ERROR("Variable %s not declared yet \n", ((variable_node *)variable_node_var->value)->name);
             error = -1;
         }
         if (variable_node_var->var_type == 0)
@@ -244,7 +211,9 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
         }
         if (type != variable_node_var->var_type)
         {
-            ERROR("Var %s is different type than %s \n", variable_node_var->name, ((variable_node *)variable_node_var->value)->name);
+            ERROR("Variable %s of type %s is trying to be assigned variable %s of type %s \n",
+                  variable_node_var->name, get_type_from_enum(variable_node_var->var_type),
+                  ((variable_node *)variable_node_var->value)->name, get_type_from_enum(type));
             error = -1;
         }
 
@@ -259,15 +228,9 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
 
 int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
 { // expresion tiene 3 espacios que no pueden ser todos nulos, esta llamada rompe la busqueda en cada uno
-    if (
-        check_var_type_in_expression_rec(type, expr->next_1, var_list) &&
-        check_var_type_in_expression_rec(type, expr->next_2, var_list) &&
-        check_var_type_in_expression_rec(type, expr->next_3, var_list))
-
-    {
-        return TRUE;
-    }
-    return FALSE;
+    return check_var_type_in_expression_rec(type, expr->next_1, var_list) &&
+           check_var_type_in_expression_rec(type, expr->next_2, var_list) &&
+           check_var_type_in_expression_rec(type, expr->next_3, var_list);
 }
 
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
@@ -283,7 +246,7 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
         int type_var = check_if_exists(var_list, variable_node_var->name);
         if (type_var == -1)
         {
-            ERROR("Var not declared yet %s\n", variable_node_var->name);
+            ERROR("Variable not declared yet %s\n", variable_node_var->name);
             error = -1;
         }
         variable_node_var->var_type = type_var;
@@ -363,4 +326,17 @@ int check_if_exists(var_node *list, char *name)
         current = next;
     }
     return -1;
+}
+
+static char *get_type_from_enum(int type)
+{
+    switch (type)
+    {
+    case STRING_TYPE:
+        return "string";
+    case NUMBER_TYPE:
+        return "number";
+    default:
+        return "unknown";
+    }
 }

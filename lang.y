@@ -110,7 +110,6 @@ expression: '(' expression ')'              { $$ = add_expression_node(add_opera
     | expression BIN_OP expression          { $$ = add_expression_node($1, add_operation_node($2), $3); }
     | expression '-' expression             { $$ = add_expression_node($1, add_operation_node("-"), $3); }
     | NUMBER                                { $$ = add_expression_node(add_number_node($1), NULL, NULL); }
-    | '$' SYMBOL_NAME                       { $$ = add_expression_node(add_variable_reference($2), NULL, NULL); };
 
 
 %%
