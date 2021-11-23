@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "./include/tree.h"
+#include "include/tree.h"
 
 
 // Extern prototypes
@@ -14,9 +14,9 @@ void warning(char * s);
 extern FILE * out;
 extern void * malloc();
 
-// #define WARNING(...) fprintf(stderr, "\033[38;2;255;165;0mWARNING: ");\
-//     fprintf(stderr, ##__VA_ARGS__);\
-//     fprintf(stderr, "\x1b[0m\n");\
+// #define WARNING(...) fprintf(stderr, "\033[38;2;255;165;0mWARNING: ");
+//     fprintf(stderr, ##__VA_ARGS__);
+//     fprintf(stderr, "\x1b[0m\n");
 //     ;
 
 // Global variables
@@ -35,12 +35,10 @@ int main_init = FALSE;
 
 }
 
-%token START EOL FIN
-%token COMB PERM 
-%token MEAN MEDIAN MODE STDEV RANGE QTR1 QTR3 INTER_QTR IN
+%token START EOL FIN DELIMETER BRACK_OPEN BRACK_CLOSE
 %token ASSIGN WRITE READ SIZE
 
-%token <string> IF WHILE DO END ELSE
+%token <string> IF WHILE ELSE
 %token <string> SYMBOL_NAME
 
 %token <string> BIN_OP UNI_OP 
@@ -60,8 +58,7 @@ int main_init = FALSE;
 %parse-param {node_t ** program}
 
 %%
-program: instruction program { $$ = (*program = (node_t *)add_element_to_list($2, $1)); }
-    | EOL program { $$ = $2; }
+program: instruction DELIMETER program { $$ = (*program = (node_t *)add_element_to_list($3, $1));}
     | FIN { $$ = (*program = (node_t *)add_instruction_list_node(NULL)); };
 
 instruction:
@@ -75,26 +72,19 @@ instruction:
                        // $$ = free_read($1);
                         warning("read");
                     } else $$ = add_instruction_node($1); }
-    | if            { if (main_init == FALSE) {
-                        //$$ = free_if_node($1);
-                        warning("if");
-                    } else $$ = add_instruction_node($1); }
-    | while         { if (main_init == FALSE) {
-                        //$$ = free_while_node($1);
-                    } else $$ = add_instruction_node($1); }
+    | if            { $$ = add_instruction_node($1); }
+    | while         { $$ = add_instruction_node($1); }
     | START         { main_init=TRUE; $$=NULL; };
 
-block: instruction block { $$ = (node_t *)add_element_to_list($2, $1); }
-    | EOL block { $$ = $2; }
-    | instruction { $$ = (node_t *)add_instruction_list_node($1); }
-    | EOL { $$ = (node_t *)add_instruction_list_node(NULL); };
+block: instruction DELIMETER block { $$ = (node_t *)add_element_to_list($3, $1); }
+    | instruction DELIMETER { $$ = (node_t *)add_instruction_list_node($1); }
 
-if: IF expression DO block if_end { $$ = add_if_node($2, add_block_node($4), $5); };
+if: IF expression BRACK_OPEN block if_end { $$ = add_if_node($2, add_block_node($4), $5); };
 
-while: WHILE expression DO block END { $$ = add_while_node($2, add_block_node($4)); };
+while: WHILE expression BRACK_OPEN block BRACK_CLOSE { $$ = add_while_node($2, add_block_node($4)); };
 
-if_end: END { $$ = NULL; }
-    | ELSE block END { $$ = add_block_node($2); };
+if_end: BRACK_CLOSE { $$ = NULL; }
+    | BRACK_CLOSE ELSE BRACK_OPEN block BRACK_CLOSE { $$ = add_block_node($4); };
     
 full_declare: declare               { $$ = $1; }
     | declare ASSIGN value          { $$ = add_value_variable($1, $3); };

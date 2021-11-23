@@ -5,7 +5,7 @@
 
 node_t *add_generic_node(node_type node_type, char *meta, node_t *n1, node_t *n2, node_t *n3)
 {
-    node_t *node = malloc(sizeof(node));
+    node_t *node = malloc(sizeof(node_t));
     if (node == NULL)
     {
         printf("Hubo un error en el malloc");
@@ -141,26 +141,24 @@ node_t *add_instruction_list_node(node_t *node)
 
 node_t *add_element_to_list(node_t *list, node_t *element)
 {
-
     if (element == NULL)
     {
         return (node_t *)list;
     }
 
     node_t *current_node = list;
-    node_t *new_node = add_instruction_list_node(element);
 
     if (current_node->next_1 == NULL)
     {
         free(list);
-        return (node_t *)new_node;
+        return (node_t *)element;
     }
-    else if (new_node != NULL)
+    else if (element != NULL)
     {
-        new_node->next_2 = current_node;
+        element->next_2 = current_node;
     }
 
-    return (node_t *)new_node;
+    return (node_t *)element;
 }
 
 node_t *add_element_to_block(node_t *list, node_t *element)
@@ -170,7 +168,7 @@ node_t *add_element_to_block(node_t *list, node_t *element)
 
 node_t *add_if_node(node_t *condition, node_t *then, node_t *otherwise)
 {
-    return add_generic_node(WHILE_NODE, NULL, condition, then, otherwise);
+    return add_generic_node(IF_NODE, NULL, condition, then, otherwise);
 }
 
 node_t *add_block_node(node_t *list)

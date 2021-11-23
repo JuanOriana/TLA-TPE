@@ -1,4 +1,5 @@
 #include "include/tree.h"
+#include "include/var_validator.h"
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,10 +11,10 @@ extern FILE *yyin;
 FILE *out;
 node_t *program;
 
-// #define ERROR(...)                                \
-//     fprintf(stderr, "\033[38;2;255;0;0mERROR: "); \
-//     fprintf(stderr, ##__VA_ARGS__);               \
-//     fprintf(stderr, "\x1b[0m\n");                 \
+// #define ERROR(...)
+//     fprintf(stderr, "\033[38;2;255;0;0mERROR: ");
+//     fprintf(stderr, ##__VA_ARGS__);
+//     fprintf(stderr, "\x1b[0m\n");
 //     ;
 
 int main(int argc, char **argv)
@@ -45,19 +46,17 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    fprintf(out, "#include \"include/temp.h\"\n");
     fprintf(out, "int main() {\n");
-
     yyparse(&program);
-    if (program->next_1 == NULL)
+
+    if (program && program->next_1 == NULL)
     {
         free(program);
         program = NULL;
     }
-    // if (check_and_set_variables(program) == -1)
-    // {
-    //     exit(-1);
-    // }
+    if (check_and_set_variables(program)==-1) {
+        exit(-1);
+    }
 
     // read_tree(program, out);
 
@@ -65,7 +64,7 @@ int main(int argc, char **argv)
     fprintf(out, "\n}");
     fclose(out);
 
-    system("gcc src/functions.c temp.c -lm -o program");
+    system("gcc temp.c -lm -o program");
 
 #if YYDEBUG == 0
     system("rm -rf temp.c");
@@ -76,7 +75,7 @@ int main(int argc, char **argv)
 
 void yyerror(node_t **param, char *s)
 {
-    // ERROR("%s at line %d", s, yylineno);
+    printf("%s at line %d", s, yylineno);
 
     exit(1);
 }

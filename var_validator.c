@@ -42,18 +42,17 @@ int check_and_set_variables(node_t *tree)
     varinit.next = NULL;
     varinit.var_type = -1;
     var_node *var_list = &varinit;
-
     check_and_set_variables_internal(tree, &var_list);
     return error;
 }
 
 void check_and_set_variables_internal(node_t *tree, var_node **var_list)
-{ // recorre las listas de insucciones
+{
     node_t *aux = tree;
     while (aux != NULL)
     {
         node_t *node = (node_t *)aux->next_1;
-        check_and_set_variables_rec((node_t *)node->meta, var_list);
+        check_and_set_variables_rec(node, var_list);
         aux = aux->next_2;
     }
     if (var_list != NULL)
@@ -91,11 +90,6 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         if (variable_node_var->declared == FALSE && variable_node_var->value != NULL)
         { //caso donde no se define la var pero se asigna
             int type = check_if_exists(*var_list, variable_node_var->name);
-            if (type == LIST_TYPE)
-            {
-                ERROR("Var %s warning, cannot assign variable after declaration\n", variable_node_var->name);
-                error = -1;
-            }
 
             if (type == -1)
             {

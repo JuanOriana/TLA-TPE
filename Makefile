@@ -27,7 +27,7 @@ endif
 parser:
 	lex $(SRC_FOLDER)/lang.l
 	yacc -d $(SRC_FOLDER)/lang.y
-	$(CC) $(CCFLAGS) $(SRC_FOLDER)/tree.c lex.yy.c y.tab.c $(SRC_FOLDER)/compiler.c $(YLFLAGS) -o $(MKDIR_BIN)/compiler
+	$(CC) $(CCFLAGS) $(SRC_FOLDER)/tree.c $(SRC_FOLDER)/var_validator.c lex.yy.c y.tab.c $(SRC_FOLDER)/compiler.c $(YLFLAGS) -o $(MKDIR_BIN)/compiler
 	rm -rf $(OBJ)
 
 bin: $(shell mkdir -p $(MKDIR_BIN))

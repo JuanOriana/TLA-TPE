@@ -1,4 +1,5 @@
 %{
+#include "./include/tree.h"
 #include "y.tab.h"
 #include <stdio.h>
 
@@ -17,7 +18,7 @@ extern int reduced;
 %option yylineno
 
 INTEGER [0-9]+
-SP      [ \t]+
+SP      [ \t\r\n]+
 
 %%
 start      { return START;}
@@ -32,6 +33,7 @@ size       { return SIZE; }
 \"[^\"]+\"                  { strcpy(yylval.string, yytext); return STRING; }
 {INTEGER}                   { strcpy(yylval.string, yytext); return NUMBER; }
 =                           { return ASSIGN;     }
+;                           { return DELIMETER;     }
 
 !=|<=|>=|==                 { strcpy(yylval.string, yytext); return BIN_OP; }
 &&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
@@ -42,8 +44,8 @@ size       { return SIZE; }
 if                          { strcpy(yylval.string, yytext); return IF; }
 else                        { strcpy(yylval.string, yytext); return ELSE; }
 while                       { strcpy(yylval.string, yytext); return WHILE; }
-do                          { strcpy(yylval.string, yytext); return DO; }
-end                         { return END; }
+\{                           { return BRACK_OPEN; }
+\}                           { return BRACK_CLOSE; }
 
 [a-zA-Z_][a-zA-Z0-9_]*      { strcpy(yylval.string, yytext); return SYMBOL_NAME; }
 
@@ -51,7 +53,6 @@ end                         { return END; }
 {SP}                        ; // Ignore whitespaces
 <<EOF>>                     { static int once = 0; return once++ ? 0 : FIN; }
 
-.           { return yytext[0]; };
-[\n]        { return EOL; };
+.                           { return yytext[0]; };
 
 %%
