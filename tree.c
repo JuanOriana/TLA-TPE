@@ -31,6 +31,54 @@ node_t *add_generic_node(node_type node_type, char *meta, node_t *n1, node_t *n2
     node->next_2 = n2;
     node->next_3 = n3;
 
+    return node;
+}
+
+node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x1, struct node_t *x2, struct node_t *y1, struct node_t *y2)
+{
+    cv_op_node_t *node = malloc(sizeof(cv_op_node_t));
+    if (node == NULL)
+    {
+        printf("Hubo un error en el malloc");
+        return NULL;
+    }
+    if (op != NULL)
+    {
+        node->op = malloc(strlen(op) + 1);
+        if (node->op == NULL)
+        {
+            free(node);
+            printf("Hubo un error en el malloc");
+            return NULL;
+        }
+        strcpy(node->op, op);
+    }
+    else
+    {
+        node->op = NULL;
+    }
+    if (data != NULL)
+    {
+        node->data = malloc(strlen(data) + 1);
+        if (node->data == NULL)
+        {
+            free(node);
+            printf("Hubo un error en el malloc");
+            return NULL;
+        }
+        strcpy(node->data, data);
+    }
+    else
+    {
+        node->data = NULL;
+    }
+    node->type = CV_OP_TYPE;
+    node->var = var;
+    node->x1 = x1;
+    node->y1 = y1;
+    node->x2 = x2;
+    node->y2 = y2;
+
     return (node_t *)node;
 }
 
@@ -189,11 +237,6 @@ node_t *add_print_node(node_t *content)
 node_t *add_read_node(node_t *content)
 {
     return add_generic_node(READ_NODE, NULL, content, NULL, NULL);
-}
-
-node_t *add_bin_cv_op_node(char *op, node_t *canvas, node_t *first, node_t *second)
-{
-    return add_generic_node(BIN_CV_OP_NODE, op, canvas, first, second);
 }
 
 node_t *add_plot_node(node_t *content)

@@ -50,6 +50,18 @@ typedef struct node_t
 
 } node_t;
 
+typedef struct cv_op_node_t
+{
+    node_type type;
+    void *op;
+    char *data;
+    struct node_t *x1;
+    struct node_t *x2;
+    struct node_t *y1;
+    struct node_t *y2;
+
+} cv_op_node_t;
+
 typedef struct variable_node
 {
     node_type type;

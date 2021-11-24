@@ -21,7 +21,7 @@ typedef enum node_type
     LIST_NODE,
     CANVAS_NODE,
     PLOT_NODE,
-    BIN_CV_OP_NODE,
+    CV_OP_TYPE,
 } node_type;
 
 // Funciona como un wrapper generico (interfaz)
@@ -41,7 +41,6 @@ typedef enum node_type
 // LIST_NODE        X               reference    next
 // CANVAS_NODE      X               width        height     X
 // PLOT_NODE        X               canvas       X          X
-// BIN_CV_OP_NODE   operation       var          term1      term2
 
 typedef struct node_t
 {
@@ -63,10 +62,25 @@ typedef struct variable_node
     node_t *value; // EXPRESSION_NODE TEXT_NODE NUMBER_NODE
 } variable_node;
 
+typedef struct cv_op_node_t
+{
+    node_type type;
+    struct node_t *var;
+    void *op;
+    char *data;
+    struct node_t *x1;
+    struct node_t *x2;
+    struct node_t *y1;
+    struct node_t *y2;
+
+} cv_op_node_t;
+
 node_t *declare_variable_node(char *name, int var_type);
 node_t *add_value_variable(node_t *var_node, node_t *expression);
 node_t *assign_variable_node(char *name, node_t *expression);
 node_t *add_variable_reference(char *name);
+
+node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x1, struct node_t *x2, struct node_t *y1, struct node_t *y2);
 
 node_t *add_expression_node(node_t *first, node_t *second, node_t *third);
 node_t *add_instruction_node(node_t *node_t);

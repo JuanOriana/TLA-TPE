@@ -132,7 +132,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             check_and_set_variables_rec(node->next_1, var_list);
             if (((variable_node *)node->next_1)->var_type != NUMBER_TYPE)
             {
-                //ERROR("Var %s not of type numeric \n", ((variable_node *)read_node_var->content)->name);
+                ERROR("Var %s not of type numeric \n", ((variable_node *)node->next_1)->name);
                 error = -1;
             }
             break;

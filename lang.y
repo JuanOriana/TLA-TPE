@@ -41,8 +41,8 @@ int main_init = FALSE;
 %token <string> IF WHILE ELSE
 %token <string> SYMBOL_NAME
 
-%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP
-%token <string> NUMBER STRING BOOLEAN 
+%token <string> BIN_OP UNI_OP PENT_CV_OP QUAD_CV_OP TRI_CV_OP
+%token <string> NUMBER STRING BOOLEAN ASCII
 
 %token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE CANVAS_TYPE
 %token <number> NATURAL
@@ -65,14 +65,8 @@ instruction:
     full_declare    { $$ = add_instruction_node($1); }
     | full_cv_declare {$$ = add_instruction_node($1);}
     | assign        { $$ = add_instruction_node($1); }
-    | write         { if (main_init == FALSE) {
-                        //$$ = free_write($1); 
-                        warning("write");
-                    } else $$ = add_instruction_node($1); }
-    | read          { if (main_init == FALSE) {
-                       // $$ = free_read($1);
-                        warning("read");
-                    } else $$ = add_instruction_node($1); }
+    | write         {  $$ = add_instruction_node($1); }
+    | read          {  $$ = add_instruction_node($1); }
     | if            { $$ = add_instruction_node($1); }
     | while         { $$ = add_instruction_node($1); }
     | plot          { $$ = add_instruction_node($1); }
@@ -116,8 +110,8 @@ read: READ SYMBOL_NAME                      { $$ = add_read_node(add_variable_re
 plot: PLOT SYMBOL_NAME                      { $$ = add_plot_node(add_variable_reference($2)); };
 
 //HACER
-cv_op: SYMBOL_NAME BIN_CV_OP BRACK_OPEN expression ',' expression BRACK_CLOSE { $$ = add_bin_cv_op_node($2,add_variable_reference($1),$4,$6); }
-
+cv_op: SYMBOL_NAME QUAD_CV_OP BRACK_OPEN expression ',' expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,$8,$10); }
+    | SYMBOL_NAME PENT_CV_OP BRACK_OPEN expression ',' expression ',' expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$12,$4,$6,$8,$10); }
 expression: '(' expression ')'              { $$ = add_expression_node(add_operation_node("("), $2, add_operation_node(")")); }
     | UNI_OP expression                     { $$ = add_expression_node(add_operation_node($1), $2, NULL); }
     | '-' expression           %prec UNI_OP { $$ = add_expression_node(add_operation_node("-"), $2, NULL); }
