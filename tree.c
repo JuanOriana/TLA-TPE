@@ -191,6 +191,16 @@ node_t *add_read_node(node_t *content)
     return add_generic_node(READ_NODE, NULL, content, NULL, NULL);
 }
 
+node_t *add_bin_cv_op_node(char *op, node_t *canvas, node_t *first, node_t *second)
+{
+    return add_generic_node(BIN_CV_OP_NODE, op, canvas, first, second);
+}
+
+node_t *add_plot_node(node_t *content)
+{
+    return add_generic_node(PLOT_NODE, NULL, content, NULL, NULL);
+}
+
 node_t *add_text_node(char *text)
 {
     return add_generic_node(TEXT_NODE, text, NULL, NULL, NULL);
@@ -199,6 +209,13 @@ node_t *add_text_node(char *text)
 node_t *add_number_node(char *number)
 {
     return add_generic_node(NUMBER_NODE, number, NULL, NULL, NULL);
+}
+
+node_t *add_canvas_node(char *width, char *height)
+{
+    node_t *canvas = add_generic_node(CANVAS_NODE, width, NULL, NULL, NULL);
+    canvas->meta2 = height;
+    return canvas;
 }
 
 node_t *add_operation_node(char *operation)

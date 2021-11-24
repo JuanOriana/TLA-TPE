@@ -18,7 +18,10 @@ typedef enum node_type
     INSTRUCTION_NODE,
     NEGATION_NODE,
     EXPRESSION_NODE,
-    LIST_NODE
+    LIST_NODE,
+    CANVAS_NODE,
+    PLOT_NODE,
+    BIN_CV_OP_NODE,
 } node_type;
 
 // Funciona como un wrapper generico (interfaz)
@@ -31,17 +34,20 @@ typedef enum node_type
 // PRINT_NODE       X               content      X          X
 // READ_NODE        X               content      X          X
 // IF_NODE          X               condition    then       otherwise
-// WHILE_NODE       X               condition    block      X
-// BLOCK_NODE       X               i-list       X          X
-// INSTRUCTION_NODE instruction     next-node    X          X
+// WHILE_NODE       X               condition    first-i      X
+// INSTRUCTION_NODE X               instruction  next-node         X
 // NEGATION_NODE
 // EXPRESSION_NODE  X               first        second     third
 // LIST_NODE        X               reference    next
+// CANVAS_NODE      X               width        height     X
+// PLOT_NODE        X               canvas       X          X
+// BIN_CV_OP_NODE   operation       var          term1      term2
 
 typedef struct node_t
 {
     node_type type;
     void *meta;
+    void *meta2;
     struct node_t *next_1;
     struct node_t *next_2;
     struct node_t *next_3;
@@ -69,12 +75,16 @@ node_t *add_element_to_list(node_t *list, node_t *element);
 
 node_t *add_print_node(node_t *content);
 node_t *add_read_node(node_t *content);
+node_t *add_bin_cv_op_node(char *operation, node_t *canvas, node_t *first, node_t *second);
+node_t *add_plot_node(node_t *content);
+
 node_t *add_text_node(char *text);
 node_t *add_number_node(char *number);
+node_t *add_canvas_node(char *width, char *height);
+
 node_t *add_block_node(node_t *list);
 node_t *add_if_node(node_t *condition, node_t *then, node_t *otherwise);
 node_t *add_while_node(node_t *condition, node_t *block);
-
 node_t *add_operation_node(char *operation);
 
 #endif

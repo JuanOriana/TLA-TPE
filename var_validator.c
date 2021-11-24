@@ -80,7 +80,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         else
         {
             int type = check_if_exists(*var_list, variable_node_var->name);
-            if (check_if_exists(*var_list, variable_node_var->name) == -1)
+            if (type == -1)
             {
                 ERROR("Variable %s is not declared yet\n", variable_node_var->name);
                 error = -1;
@@ -89,9 +89,13 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         }
         if (variable_node_var->value != NULL)
         {
+            if (!variable_node_var->declared && variable_node_var->var_type == CANVAS_TYPE)
+            {
+                ERROR("%s is assigned a new canvas type. Canvas types are finals and cannot be assigned\n", variable_node_var->name);
+                error = -1;
+            }
             check_var_types_in_value(variable_node_var->var_type, variable_node_var, *var_list);
         }
-
         break;
     case PRINT_NODE: //el caso donde recibis algo como write <algo>
         ;
@@ -259,6 +263,9 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
     case OPERATION_NODE:
         return NUMBER_TYPE == type;
         break;
+    case CANVAS_NODE:
+        return CANVAS_TYPE == type;
+        break;
     case EXPRESSION_NODE:
         return check_var_type_in_expression(type, node, var_list);
         break;
@@ -334,6 +341,8 @@ static char *get_type_from_enum(int type)
         return "string";
     case NUMBER_TYPE:
         return "number";
+    case CANVAS_TYPE:
+        return "canvas";
     default:
         return "unknown";
     }
