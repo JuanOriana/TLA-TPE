@@ -112,6 +112,7 @@ plot: PLOT SYMBOL_NAME                      { $$ = add_plot_node(add_variable_re
 //HACER
 cv_op: SYMBOL_NAME QUAD_CV_OP BRACK_OPEN expression ',' expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,$8,$10); }
     | SYMBOL_NAME PENT_CV_OP BRACK_OPEN expression ',' expression ',' expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$12,$4,$6,$8,$10); }
+    | SYMBOL_NAME TRI_CV_OP BRACK_OPEN expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$8,$6,$8); }
 expression: '(' expression ')'              { $$ = add_expression_node(add_operation_node("("), $2, add_operation_node(")")); }
     | UNI_OP expression                     { $$ = add_expression_node(add_operation_node($1), $2, NULL); }
     | '-' expression           %prec UNI_OP { $$ = add_expression_node(add_operation_node("-"), $2, NULL); }
