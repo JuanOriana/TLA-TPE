@@ -25,6 +25,7 @@ start      { return START;}
 number     { yylval.number = NUMBER_TYPE; return NUMBER_TYPE; }
 string     { yylval.number = STRING_TYPE; return STRING_TYPE; }
 boolean    { yylval.number = BOOLEAN_TYPE; return BOOLEAN_TYPE; }
+canvas     { yylval.number = CANVAS_TYPE; return CANVAS_TYPE; }
 write      { return WRITE; }
 read       { return READ; }
 size       { return SIZE; }
@@ -38,10 +39,12 @@ size       { return SIZE; }
 !=|<=|>=|==                 { strcpy(yylval.string, yytext); return BIN_OP; }
 &&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
 \|\|	                    { strcpy(yylval.string, "||"); return BIN_OP; }
-\+		                { strcpy(yylval.string, yytext); return BIN_OP; }
+\+		                    { strcpy(yylval.string, yytext); return BIN_OP; }
 !		                    { strcpy(yylval.string, "!"); return UNI_OP; }
 
-
+hor|vert|dot                { strcpy(yylval.string, yytext); return BIN_CV_OP; }
+char                        { strcpy(yylval.string, yytext); return TRI_CV_OP; }
+plot                        {return PLOT;}
 if                          { strcpy(yylval.string, yytext); return IF; }
 else                        { strcpy(yylval.string, yytext); return ELSE; }
 while                       { strcpy(yylval.string, yytext); return WHILE; }

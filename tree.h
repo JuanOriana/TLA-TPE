@@ -18,7 +18,8 @@ typedef enum node_type
     INSTRUCTION_NODE,
     NEGATION_NODE,
     EXPRESSION_NODE,
-    LIST_NODE
+    LIST_NODE,
+    CANVAS_NODE
 } node_type;
 
 // Funciona como un wrapper generico (interfaz)
@@ -36,11 +37,13 @@ typedef enum node_type
 // NEGATION_NODE
 // EXPRESSION_NODE  X               first        second     third
 // LIST_NODE        X               reference    next
+// CANVAS_NODE      X               width        height     X
 
 typedef struct node_t
 {
     node_type type;
     void *meta;
+    void *meta2;
     struct node_t *next_1;
     struct node_t *next_2;
     struct node_t *next_3;
@@ -70,10 +73,10 @@ node_t *add_print_node(node_t *content);
 node_t *add_read_node(node_t *content);
 node_t *add_text_node(char *text);
 node_t *add_number_node(char *number);
+node_t *add_canvas_node(char *width, char *height);
 node_t *add_block_node(node_t *list);
 node_t *add_if_node(node_t *condition, node_t *then, node_t *otherwise);
 node_t *add_while_node(node_t *condition, node_t *block);
-
 node_t *add_operation_node(char *operation);
 
 #endif

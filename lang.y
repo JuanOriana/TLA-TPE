@@ -36,20 +36,20 @@ int main_init = FALSE;
 }
 
 %token START EOL FIN DELIMETER BRACK_OPEN BRACK_CLOSE
-%token ASSIGN WRITE READ SIZE
+%token ASSIGN WRITE READ SIZE PLOT
 
 %token <string> IF WHILE ELSE
 %token <string> SYMBOL_NAME
 
-%token <string> BIN_OP UNI_OP 
+%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP
 %token <string> NUMBER STRING BOOLEAN 
 
-%token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE
+%token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE CANVAS_TYPE
 %token <number> NATURAL
 
 %type <number> type
-%type <node> full_declare declare assign value expression
-%type <node> instruction write read if if_end while
+%type <node> full_declare declare assign value expression full_cv_declare cv_declare cv_value
+%type <node> instruction write read if if_end while plot cv_op
 %type <list> program block
 
 %nonassoc IN
@@ -63,6 +63,7 @@ program: instruction DELIMETER program { $$ = (*program = (node_t *)add_element_
 
 instruction:
     full_declare    { $$ = add_instruction_node($1); }
+    | full_cv_declare {$$ = add_instruction_node($1);}
     | assign        { $$ = add_instruction_node($1); }
     | write         { if (main_init == FALSE) {
                         //$$ = free_write($1); 
@@ -74,6 +75,8 @@ instruction:
                     } else $$ = add_instruction_node($1); }
     | if            { $$ = add_instruction_node($1); }
     | while         { $$ = add_instruction_node($1); }
+    | plot          { $$ = add_instruction_node($1); }
+    | cv_op         { $$ = add_instruction_node($1); }
     | START         { main_init=TRUE; $$=NULL; };
 
 block: instruction DELIMETER block { $$ = (node_t *)add_element_to_list($3, $1); }
@@ -89,20 +92,34 @@ if_end: BRACK_CLOSE { $$ = NULL; }
 full_declare: declare               { $$ = $1; }
     | declare ASSIGN value          { $$ = add_value_variable($1, $3); };
 
+full_cv_declare: cv_declare ASSIGN cv_value {$$ = add_value_variable($1, $3);};
+
 declare: type SYMBOL_NAME           { $$ = declare_variable_node($2, $1); };
-type: NUMBER_TYPE | STRING_TYPE        ;
+
+cv_declare: CANVAS_TYPE SYMBOL_NAME {$$ = declare_variable_node($2,$1);};
+
+type: NUMBER_TYPE | STRING_TYPE ;
 
 assign: SYMBOL_NAME ASSIGN value { $$ = assign_variable_node($1, $3); };
+
 value: expression   { $$ = $1; }
     | SYMBOL_NAME   { $$ = add_variable_reference($1); }
-    | STRING        { $$ = add_text_node($1);   };
+    | STRING        { $$ = add_text_node($1); };
+
+cv_value: BRACK_OPEN NUMBER ',' NUMBER BRACK_CLOSE {$$ = add_canvas_node($2,$4);};
 
 
 write: WRITE expression                     { $$ = add_print_node($2); }
     | WRITE SYMBOL_NAME                     { $$ = add_print_node(add_variable_reference($2)); }
-    | WRITE STRING                          { $$ = add_print_node(add_text_node($2)); }
+    | WRITE STRING                          { $$ = add_print_node(add_text_node($2)); };
 
 read: READ SYMBOL_NAME                      { $$ = add_read_node(add_variable_reference($2)); };
+
+//HACER
+plot: PLOT SYMBOL_NAME                      { $$ = add_plot_node(add_variable_reference($2)); };
+
+//HACER
+cv_op: SYMBOL_NAME BIN_CV_OP BRACK_OPEN expression ',' expression BRACK_CLOSE { $$ = add_bin_cv_op_node($2,add_variable_reference($1),$4,$6); }
 
 expression: '(' expression ')'              { $$ = add_expression_node(add_operation_node("("), $2, add_operation_node(")")); }
     | UNI_OP expression                     { $$ = add_expression_node(add_operation_node($1), $2, NULL); }
