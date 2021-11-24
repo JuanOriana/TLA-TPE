@@ -34,6 +34,7 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list);
 int check_var_type_in_list_op(int type, node_t *node, var_node *var_list);
 int check_var_type_in_list_value(int type, node_t *node, var_node *var_list);
+int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list);
 static char *get_type_from_enum(int type);
 
 int check_and_set_variables(node_t *tree)
@@ -108,7 +109,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         case EXPRESSION_NODE:
             if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
             {
-                ERROR("Var in write is type text in expression\n");
+                ERROR("Variable in write is type text inside expression\n");
                 error = -1;
             }
             break;
@@ -118,9 +119,8 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             break;
 
         default:
-#if YYDEBUG == 1
-            printf("Algo salio mal var checker print_node\n");
-#endif
+            ERROR("UNKNOWN AST ERROR");
+            error = -1;
             break;
         }
         break;
@@ -132,16 +132,32 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             check_and_set_variables_rec(node->next_1, var_list);
             if (((variable_node *)node->next_1)->var_type != NUMBER_TYPE)
             {
-                ERROR("Var %s not of type numeric \n", ((variable_node *)node->next_1)->name);
+                ERROR("Variable %s in read not of type numeric \n", ((variable_node *)node->next_1)->name);
                 error = -1;
             }
             break;
 
         default:
-#if YYDEBUG == 1
-            printf("Algo salio mal var checker read_node\n");
-#endif
+            ERROR("UNKNOWN AST ERROR");
+            error = -1;
             break;
+        }
+        break;
+    case PLOT_NODE:
+        if (node->next_1->type == VARIABLE_NODE)
+        {
+            check_and_set_variables_rec(node->next_1, var_list);
+            if (error != -1 && ((variable_node *)node->next_1)->var_type != CANVAS_TYPE)
+            {
+                ERROR("Variable %s of type %s is trying to be plotted without being a canvas \n", ((variable_node *)node->next_1)->name,
+                      get_type_from_enum(((variable_node *)node->next_1)->var_type));
+                error = -1;
+            }
+        }
+        else
+        {
+            ERROR("UNKNOWN AST ERROR");
+            error = -1;
         }
         break;
     case IF_NODE:
@@ -172,10 +188,17 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         check_and_set_variables_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
         //  *var_list=free_list(*var_list);
         break;
+    case CV_OP_TYPE:;
+        cv_op_node_t *op_node = (cv_op_node_t *)node;
+        if (!check_var_type_in_cv_ops(NUMBER_TYPE, op_node, *var_list))
+        { //buscar variables en condicion
+            ERROR("Every coordenate parameter in cv operation %s should be numeric\n", (char *)op_node->op);
+            error = -1;
+        }
+        //  *var_list=free_list(*var_list);
+        break;
     default:
-#if YYDEBUG == 1
-        printf("Algo salio mal var checker\n");
-#endif
+        ERROR("UNKNOWN NODE");
         break;
     }
 }
@@ -233,6 +256,14 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
     return check_var_type_in_expression_rec(type, expr->next_1, var_list) &&
            check_var_type_in_expression_rec(type, expr->next_2, var_list) &&
            check_var_type_in_expression_rec(type, expr->next_3, var_list);
+}
+
+int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
+{
+    return check_var_type_in_expression_rec(type, node->x1, var_list) &&
+           check_var_type_in_expression_rec(type, node->y1, var_list) &&
+           check_var_type_in_expression_rec(type, node->x2, var_list) &&
+           check_var_type_in_expression_rec(type, node->y2, var_list);
 }
 
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
