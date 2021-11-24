@@ -34,7 +34,7 @@ node_t *add_generic_node(node_type node_type, char *meta, node_t *n1, node_t *n2
     return node;
 }
 
-node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x1, struct node_t *y1, struct node_t *x2, struct node_t *y2)
+node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x, struct node_t *y, struct node_t *axis)
 {
     cv_op_node_t *node = malloc(sizeof(cv_op_node_t));
     if (node == NULL)
@@ -74,10 +74,9 @@ node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t 
     }
     node->type = CV_OP_TYPE;
     node->var = var;
-    node->x1 = x1;
-    node->y1 = y1;
-    node->x2 = x2;
-    node->y2 = y2;
+    node->x = x;
+    node->y = y;
+    node->axis = axis;
 
     return (node_t *)node;
 }

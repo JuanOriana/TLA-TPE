@@ -21,13 +21,14 @@ INTEGER [0-9]+
 SP      [ \t\r\n]+
 
 %%
-start      { return START;}
-number     { yylval.number = NUMBER_TYPE; return NUMBER_TYPE; }
+int         { yylval.number = NUMBER_TYPE; return NUMBER_TYPE; }
 string     { yylval.number = STRING_TYPE; return STRING_TYPE; }
 boolean    { yylval.number = BOOLEAN_TYPE; return BOOLEAN_TYPE; }
 canvas     { yylval.number = CANVAS_TYPE; return CANVAS_TYPE; }
 write      { return WRITE; }
 read       { return READ; }
+plot       {return PLOT;}
+
 
 '[\x00-\x7F]'                 { strcpy(yylval.string, yytext); return ASCII; }
 \"[^\"]+\"                  { strcpy(yylval.string, yytext); return STRING; }
@@ -35,17 +36,16 @@ read       { return READ; }
 =                           { return ASSIGN;     }
 ;                           { return DELIMETER;     }
 
-!=|<=|>=|==                 { strcpy(yylval.string, yytext); return BIN_OP; }
+!=|<=|>=|==|<|>             { strcpy(yylval.string, yytext); return BIN_OP; }  
 &&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
 \|\|	                    { strcpy(yylval.string, "||"); return BIN_OP; }
 \+|\*|\/		                { strcpy(yylval.string, yytext); return BIN_OP; }
 !		                    { strcpy(yylval.string, "!"); return UNI_OP; }
 
 hor|vert                    { strcpy(yylval.string, yytext); return TRI_CV_OP; }
-dot                         {strcpy(yylval.string, yytext); return QUAD_CV_OP; }
-char                        { strcpy(yylval.string, yytext); return PENT_CV_OP; }
+dot                         {strcpy(yylval.string, yytext); return BIN_CV_OP; }
+char                        { strcpy(yylval.string, yytext); return TRI_CV_OP_CHAR; }
 
-plot                        {return PLOT;}
 if                          { strcpy(yylval.string, yytext); return IF; }
 else                        { strcpy(yylval.string, yytext); return ELSE; }
 while                       { strcpy(yylval.string, yytext); return WHILE; }
@@ -54,7 +54,7 @@ while                       { strcpy(yylval.string, yytext); return WHILE; }
 
 [a-zA-Z_][a-zA-Z0-9_]*      { strcpy(yylval.string, yytext); return SYMBOL_NAME; }
 
-#.*                         ; // Ignore comments
+#.*                         ; // Ignore comments 
 {SP}                        ; // Ignore whitespaces
 <<EOF>>                     { static int once = 0; return once++ ? 0 : FIN; }
 

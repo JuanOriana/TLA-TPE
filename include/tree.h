@@ -68,10 +68,9 @@ typedef struct cv_op_node_t
     struct node_t *var;
     void *op;
     char *data;
-    struct node_t *x1;
-    struct node_t *x2;
-    struct node_t *y1;
-    struct node_t *y2;
+    struct node_t *x;
+    struct node_t *y;
+    struct node_t *axis;
 
 } cv_op_node_t;
 
@@ -80,7 +79,7 @@ node_t *add_value_variable(node_t *var_node, node_t *expression);
 node_t *assign_variable_node(char *name, node_t *expression);
 node_t *add_variable_reference(char *name);
 
-node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x1, struct node_t *y1, struct node_t *x2, struct node_t *y2);
+node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x, struct node_t *y, struct node_t *axis);
 
 node_t *add_expression_node(node_t *first, node_t *second, node_t *third);
 node_t *add_instruction_node(node_t *node_t);

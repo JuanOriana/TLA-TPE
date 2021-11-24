@@ -260,10 +260,9 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
 
 int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
 {
-    return check_var_type_in_expression_rec(type, node->x1, var_list) &&
-           check_var_type_in_expression_rec(type, node->y1, var_list) &&
-           check_var_type_in_expression_rec(type, node->x2, var_list) &&
-           check_var_type_in_expression_rec(type, node->y2, var_list);
+    return check_var_type_in_expression_rec(type, node->x, var_list) &&
+           check_var_type_in_expression_rec(type, node->y, var_list) &&
+           check_var_type_in_expression_rec(type, node->axis, var_list);
 }
 
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)

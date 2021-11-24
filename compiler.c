@@ -1,5 +1,7 @@
 #include "include/tree.h"
 #include "include/var_validator.h"
+#include "include/ast_to_c.h"
+
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,7 +48,8 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    fprintf(out, "int main() {\n");
+    fprintf(out, "#include <stdio.h>\n int main() {\n");
+
     yyparse(&program);
 
     if (program && program->next_1 == NULL)
@@ -54,21 +57,19 @@ int main(int argc, char **argv)
         free(program);
         program = NULL;
     }
-    if (check_and_set_variables(program)==-1) {
+
+    if (check_and_set_variables(program) == -1)
+    {
         exit(-1);
     }
 
-    // read_tree(program, out);
+    tree_to_c(program, out);
 
     fprintf(out, "return 0;\n");
     fprintf(out, "\n}");
     fclose(out);
 
     system("gcc temp.c -lm -o program");
-
-#if YYDEBUG == 0
-    system("rm -rf temp.c");
-#endif
 
     printf("\nSuccesfully parsed\n");
 }
