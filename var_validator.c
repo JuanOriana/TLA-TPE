@@ -107,7 +107,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             break;
 
         case EXPRESSION_NODE:
-            if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
+            if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
             {
                 ERROR("Variable in write is type text inside expression\n");
                 error = -1;
@@ -130,7 +130,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         {
         case VARIABLE_NODE: //read variable
             check_and_set_variables_rec(node->next_1, var_list);
-            if (((variable_node *)node->next_1)->var_type != NUMBER_TYPE)
+            if (((variable_node *)node->next_1)->var_type != INTEGER_TYPE)
             {
                 ERROR("Variable %s in read not of type numeric \n", ((variable_node *)node->next_1)->name);
                 error = -1;
@@ -161,7 +161,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         }
         break;
     case IF_NODE:
-        if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
+        if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
         { // miro que la condicion sea valida
             ERROR("An if condition may only be numeric\n");
             error = -1;
@@ -179,7 +179,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
 
         break;
     case WHILE_NODE:
-        if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
+        if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
         { //buscar variables en condicion
             ERROR("A while condition may only be numeric\n");
             error = -1;
@@ -189,7 +189,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         //  *var_list=free_list(*var_list);
         break;
     case RETURN_NODE:
-        if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
+        if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
         { //buscar variables en condicion
             ERROR("A return statement may only be numeric\n");
             error = -1;
@@ -206,7 +206,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
                   get_type_from_enum(op_node_var->var_type), (char *)op_node->op);
             error = -1;
         }
-        if (!check_var_type_in_cv_ops(NUMBER_TYPE, op_node, *var_list))
+        if (!check_var_type_in_cv_ops(INTEGER_TYPE, op_node, *var_list))
         { //buscar variables en condicion
             ERROR("Every coordenate parameter in cv operation %s should be numeric\n", (char *)op_node->op);
             error = -1;
@@ -308,11 +308,11 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
     case TEXT_NODE:
         return STRING_TYPE == type;
         break;
-    case NUMBER_NODE:
-        return NUMBER_TYPE == type;
+    case INTEGER_NODE:
+        return INTEGER_TYPE == type;
         break;
     case OPERATION_NODE:
-        return NUMBER_TYPE == type;
+        return INTEGER_TYPE == type;
         break;
     case CANVAS_NODE:
         return CANVAS_TYPE == type;
@@ -390,8 +390,8 @@ static char *get_type_from_enum(int type)
     {
     case STRING_TYPE:
         return "string";
-    case NUMBER_TYPE:
-        return "number";
+    case INTEGER_TYPE:
+        return "integer";
     case CANVAS_TYPE:
         return "canvas";
     default:

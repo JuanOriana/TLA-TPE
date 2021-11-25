@@ -21,10 +21,10 @@ INTEGER [0-9]+
 SP      [ \t\r\n]+
 
 %%
-int         { yylval.number = NUMBER_TYPE; return NUMBER_TYPE; }
-string     { yylval.number = STRING_TYPE; return STRING_TYPE; }
-boolean    { yylval.number = BOOLEAN_TYPE; return BOOLEAN_TYPE; }
-canvas     { yylval.number = CANVAS_TYPE; return CANVAS_TYPE; }
+int         { yylval.integer = INTEGER_TYPE; return INTEGER_TYPE; }
+string     { yylval.integer = STRING_TYPE; return STRING_TYPE; }
+boolean    { yylval.integer = BOOLEAN_TYPE; return BOOLEAN_TYPE; }
+canvas     { yylval.integer = CANVAS_TYPE; return CANVAS_TYPE; }
 write      { return WRITE; }
 read       { return READ; }
 plot       {return PLOT;}
@@ -33,7 +33,7 @@ main:      {return MAIN;}
 
 '[\x00-\x7F]'                 { strcpy(yylval.string, yytext); return ASCII; }
 \"[^\"]+\"                  { strcpy(yylval.string, yytext); return STRING; }
-{INTEGER}                   { strcpy(yylval.string, yytext); return NUMBER; }
+{INTEGER}                   { strcpy(yylval.string, yytext); return INTEGER; }
 =                           { return ASSIGN;     }
 ;                           { return DELIMETER;     }
 

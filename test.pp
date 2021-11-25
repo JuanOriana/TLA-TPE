@@ -6,7 +6,7 @@ cv fill {2,2,5,5,'/'};
 while (3+2/2){
     cv dot {i,i};
     i = i +1;
-    return hola;
+    return 1;
 }
 cv color {4};
 plot cv;

@@ -249,9 +249,9 @@ node_t *add_text_node(char *text)
     return add_generic_node(TEXT_NODE, text, NULL, NULL, NULL);
 }
 
-node_t *add_number_node(char *number)
+node_t *add_integer_node(char *integer)
 {
-    return add_generic_node(NUMBER_NODE, number, NULL, NULL, NULL);
+    return add_generic_node(INTEGER_NODE, integer, NULL, NULL, NULL);
 }
 
 node_t *add_canvas_node(char *width, char *height)

@@ -32,8 +32,11 @@ void canvas_plot(canvas_t canvas)
 
 void cv_set_char_in_coords(canvas_t canvas, char c, int x, int y)
 {
-    if (!(canvas.canvas_mat == NULL))
-        canvas.canvas_mat[y * canvas.width + x] = c;
+    if (canvas.canvas_mat == NULL || x < 0 || x >= canvas.width || y < 0 || y > canvas.height)
+    {
+        return;
+    }
+    canvas.canvas_mat[y * canvas.width + x] = c;
 }
 
 void cv_horizontal_line(canvas_t canvas, int left_bound, int right_bound, int y)

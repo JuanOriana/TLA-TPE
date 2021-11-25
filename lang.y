@@ -28,7 +28,7 @@ int main_init = FALSE;
 
 %union {
     char string[1024];
-    double number;
+    int integer;
     char boolean;
     struct node_t * node;
     struct node_t * list;
@@ -42,12 +42,12 @@ int main_init = FALSE;
 %token <string> SYMBOL_NAME
 
 %token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR UNI_CV_OP QUAD_CV_OP_CHAR
-%token <string> NUMBER STRING BOOLEAN ASCII
+%token <string> INTEGER STRING BOOLEAN ASCII
 
-%token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE CANVAS_TYPE
-%token <number> NATURAL
+%token <integer> STRING_TYPE INTEGER_TYPE BOOLEAN_TYPE CANVAS_TYPE
+%token <integer> NATURAL
 
-%type <number> type
+%type <integer> type
 %type <node> full_declare declare assign value expression full_cv_declare cv_declare cv_value return
 %type <node> instruction write read if if_end while plot cv_op 
 %type <list> program block
@@ -96,14 +96,14 @@ declare: type SYMBOL_NAME           { $$ = declare_variable_node($2, $1); };
 
 cv_declare: CANVAS_TYPE SYMBOL_NAME {$$ = declare_variable_node($2,$1);};
 
-type: NUMBER_TYPE | STRING_TYPE ;
+type: INTEGER_TYPE | STRING_TYPE ;
 
 assign: SYMBOL_NAME ASSIGN value { $$ = assign_variable_node($1, $3); };
 
 value: expression   { $$ = $1; }
     | STRING        { $$ = add_text_node($1);   };
 
-cv_value: BRACK_OPEN NUMBER ',' NUMBER BRACK_CLOSE {$$ = add_canvas_node($2,$4);};
+cv_value: BRACK_OPEN INTEGER ',' INTEGER BRACK_CLOSE {$$ = add_canvas_node($2,$4);};
 
 write: WRITE expression                     { $$ = add_print_node($2); }
     | WRITE STRING                          { $$ = add_print_node(add_text_node($2)); }
@@ -124,7 +124,7 @@ expression: '(' expression ')'              { $$ = add_expression_node(add_opera
     | '-' expression           %prec UNI_OP { $$ = add_expression_node(add_operation_node("-"), $2, NULL); }
     | expression BIN_OP expression          { $$ = add_expression_node($1, add_operation_node($2), $3); }
     | expression '-' expression             { $$ = add_expression_node($1, add_operation_node("-"), $3); }
-    | NUMBER                                { $$ = add_expression_node(add_number_node($1), NULL, NULL); }
+    | INTEGER                                { $$ = add_expression_node(add_integer_node($1), NULL, NULL); }
     | SYMBOL_NAME                           { $$ = add_variable_reference($1); }
 
 

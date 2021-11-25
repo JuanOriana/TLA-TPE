@@ -7,7 +7,7 @@
 typedef enum node_type
 {
     TEXT_NODE = 0,
-    NUMBER_NODE,
+    INTEGER_NODE,
     OPERATION_NODE,
     VARIABLE_NODE,
     PRINT_NODE,
@@ -27,7 +27,7 @@ typedef enum node_type
 // REF
 // TYPE             META            N1           N2         N3
 // TEXT_NODE        texto           X            X          X
-// NUMBER_NODE      numero          X            X          X
+// INTEGER_NODE      numero          X            X          X
 // OPERATION_NODE   operation       X            X          X
 // PRINT_NODE       X               content      X          X
 // READ_NODE        X               content      X          X
@@ -69,7 +69,7 @@ typedef struct variable_node
     int declared;
     int var_type;
     char *name;
-    node_t *value; // EXPRESSION_NODE TEXT_NODE NUMBER_NODE
+    node_t *value; // EXPRESSION_NODE TEXT_NODE INTEGER_NODE
 } variable_node;
 
 node_t *declare_variable_node(char *name, int var_type);
@@ -85,7 +85,7 @@ node_t *add_element_to_list(node_t *list, node_t *element);
 node_t *add_print_node(node_t *content);
 node_t *add_read_node(node_t *content);
 node_t *add_text_node(char *text);
-node_t *add_number_node(char *number);
+node_t *add_INTEGER_NODE(char *integer);
 node_t *add_canvas_node(char *width, char *height);
 node_t *add_block_node(node_t *list);
 node_t *add_if_node(node_t *condition, node_t *then, node_t *otherwise);

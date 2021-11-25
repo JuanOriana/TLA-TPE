@@ -28,7 +28,7 @@ void instruction_list_to_c(node_t *list);
 void if_to_c(node_t *node);
 void while_to_c(node_t *node);
 void free_text_node(node_t *node);
-void free_number_node(node_t *node);
+void free_INTEGER_NODE(node_t *node);
 void free_operation_node(node_t *node);
 
 void tree_to_c(node_t *program, FILE *file)
@@ -102,7 +102,7 @@ void variable_to_c(node_t *node)
         // Es una declaración
         switch (var->var_type)
         {
-        case NUMBER_TYPE:
+        case INTEGER_TYPE:
             P("int %s", var->name);
             break;
         case STRING_TYPE:
@@ -134,7 +134,7 @@ void variable_to_c(node_t *node)
         {
             expresion_to_c(var->value);
         }
-        else if (var->value->type == TEXT_NODE || var->value->type == NUMBER_NODE)
+        else if (var->value->type == TEXT_NODE || var->value->type == INTEGER_NODE)
         {
             P("%s", (char *)var->value->meta);
             free(var->value->meta);
@@ -164,7 +164,7 @@ void write_to_c(node_t *node)
     {
     case VARIABLE_NODE:;
         variable_node *var = (variable_node *)(node->next_1);
-        if (var->var_type == NUMBER_TYPE)
+        if (var->var_type == INTEGER_TYPE)
             P("printf(\"%%d\",(int)(%s));\n", var->name);
         if (var->var_type == STRING_TYPE)
             P("printf(\"%%s\", %s);\n", var->name);
@@ -191,7 +191,7 @@ void read_to_c(node_t *node)
     if (node->next_1->type == VARIABLE_NODE)
     {
         variable_node *var = (variable_node *)(node->next_1);
-        if (var->var_type == NUMBER_TYPE)
+        if (var->var_type == INTEGER_TYPE)
             P("scanf(\"%%d\", &%s);", var->name);
         free(var->name);
     }
@@ -288,7 +288,7 @@ void switch_expresion_to_c(node_t *node)
         free(var->name);
         break;
     case TEXT_NODE:
-    case NUMBER_NODE:
+    case INTEGER_NODE:
     case OPERATION_NODE:
         P(" %s ", (char *)node->meta);
         free(node->meta);
