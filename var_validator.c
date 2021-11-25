@@ -130,7 +130,8 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         {
         case VARIABLE_NODE: //read variable
             check_and_set_variables_rec(node->next_1, var_list);
-            if (((variable_node *)node->next_1)->var_type != INTEGER_TYPE)
+            int type = ((variable_node *)node->next_1)->var_type;
+            if (type != INTEGER_TYPE && type != DOUBLE_TYPE)
             {
                 ERROR("Variable %s in read not of type numeric \n", ((variable_node *)node->next_1)->name);
                 error = -1;
@@ -303,16 +304,20 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
             error = -1;
         }
         variable_node_var->var_type = type_var;
+        //Normalize numeric values
+        if (type_var == DOUBLE_TYPE)
+            type_var = INTEGER_TYPE;
+        if (type == DOUBLE_TYPE)
+            type = INTEGER_TYPE;
         return type_var == type;
         break;
     case TEXT_NODE:
         return STRING_TYPE == type;
         break;
     case INTEGER_NODE:
-        return INTEGER_TYPE == type;
-        break;
+    case DOUBLE_NODE:
     case OPERATION_NODE:
-        return INTEGER_TYPE == type;
+        return INTEGER_TYPE == type || DOUBLE_TYPE == type;
         break;
     case CANVAS_NODE:
         return CANVAS_TYPE == type;
@@ -391,7 +396,9 @@ static char *get_type_from_enum(int type)
     case STRING_TYPE:
         return "string";
     case INTEGER_TYPE:
-        return "integer";
+        return "number";
+    case DOUBLE_TYPE:
+        return "double";
     case CANVAS_TYPE:
         return "canvas";
     default:

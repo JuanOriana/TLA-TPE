@@ -254,6 +254,11 @@ node_t *add_integer_node(char *integer)
     return add_generic_node(INTEGER_NODE, integer, NULL, NULL, NULL);
 }
 
+node_t *add_double_node(char *floating)
+{
+    return add_generic_node(DOUBLE_NODE, floating, NULL, NULL, NULL);
+}
+
 node_t *add_canvas_node(char *width, char *height)
 {
     node_t *canvas = add_generic_node(CANVAS_NODE, width, NULL, NULL, NULL);

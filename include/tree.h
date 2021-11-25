@@ -8,6 +8,7 @@ typedef enum node_type
 {
     TEXT_NODE = 0,
     INTEGER_NODE,
+    DOUBLE_NODE,
     OPERATION_NODE,
     VARIABLE_NODE,
     PRINT_NODE,
@@ -31,6 +32,7 @@ typedef enum node_type
 // TYPE             META            N1           N2         N3
 // TEXT_NODE        texto           X            X          X
 // INTEGER_NODE      numero          X            X          X
+// DOUBLE_NODE      numero          X            X          X
 // OPERATION_NODE   operation       X            X          X
 // PRINT_NODE       X               content      X          X
 // READ_NODE        X               content      X          X
@@ -96,6 +98,7 @@ node_t *add_plot_node(node_t *content);
 
 node_t *add_text_node(char *text);
 node_t *add_integer_node(char *integer);
+node_t *add_double_node(char *floating);
 node_t *add_canvas_node(char *width, char *height);
 
 node_t *add_block_node(node_t *list);

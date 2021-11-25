@@ -29,7 +29,7 @@ int main_init = FALSE;
 %union {
     char string[1024];
     int integer;
-    char boolean;
+    double floating;
     struct node_t * node;
     struct node_t * list;
 
@@ -42,9 +42,9 @@ int main_init = FALSE;
 %token <string> SYMBOL_NAME
 
 %token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR UNI_CV_OP QUAD_CV_OP_CHAR
-%token <string> INTEGER STRING BOOLEAN ASCII
+%token <string> INTEGER STRING DOUBLE ASCII
 
-%token <integer> STRING_TYPE INTEGER_TYPE BOOLEAN_TYPE CANVAS_TYPE
+%token <integer> STRING_TYPE INTEGER_TYPE DOUBLE_TYPE CANVAS_TYPE
 %token <integer> NATURAL
 
 %type <integer> type
@@ -96,7 +96,7 @@ declare: type SYMBOL_NAME           { $$ = declare_variable_node($2, $1); };
 
 cv_declare: CANVAS_TYPE SYMBOL_NAME {$$ = declare_variable_node($2,$1);};
 
-type: INTEGER_TYPE | STRING_TYPE ;
+type: INTEGER_TYPE | STRING_TYPE | DOUBLE_TYPE;
 
 assign: SYMBOL_NAME ASSIGN value { $$ = assign_variable_node($1, $3); };
 
@@ -125,6 +125,7 @@ expression: '(' expression ')'              { $$ = add_expression_node(add_opera
     | expression BIN_OP expression          { $$ = add_expression_node($1, add_operation_node($2), $3); }
     | expression '-' expression             { $$ = add_expression_node($1, add_operation_node("-"), $3); }
     | INTEGER                                { $$ = add_expression_node(add_integer_node($1), NULL, NULL); }
+    | DOUBLE                                 { $$ = add_expression_node(add_double_node($1), NULL, NULL); }
     | SYMBOL_NAME                           { $$ = add_variable_reference($1); }
 
 

@@ -18,12 +18,14 @@ extern int reduced;
 %option yylineno
 
 INTEGER [0-9]+
+DOUBLE [0-9]+.[0-9]+
+
 SP      [ \t\r\n]+
 
 %%
 int         { yylval.integer = INTEGER_TYPE; return INTEGER_TYPE; }
 string     { yylval.integer = STRING_TYPE; return STRING_TYPE; }
-boolean    { yylval.integer = BOOLEAN_TYPE; return BOOLEAN_TYPE; }
+double     { yylval.integer = DOUBLE_TYPE; return DOUBLE_TYPE; }
 canvas     { yylval.integer = CANVAS_TYPE; return CANVAS_TYPE; }
 write      { return WRITE; }
 read       { return READ; }
@@ -34,6 +36,8 @@ main:      {return MAIN;}
 '[\x00-\x7F]'                 { strcpy(yylval.string, yytext); return ASCII; }
 \"[^\"]+\"                  { strcpy(yylval.string, yytext); return STRING; }
 {INTEGER}                   { strcpy(yylval.string, yytext); return INTEGER; }
+{DOUBLE}                    { strcpy(yylval.string, yytext); return DOUBLE; }
+
 =                           { return ASSIGN;     }
 ;                           { return DELIMETER;     }
 
