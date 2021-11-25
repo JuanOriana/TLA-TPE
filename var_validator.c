@@ -188,7 +188,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         check_and_set_variables_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
         //  *var_list=free_list(*var_list);
         break;
-    case CV_OP_TYPE:;
+    case CV_OP_NODE:;
         cv_op_node_t *op_node = (cv_op_node_t *)node;
         if (!check_var_type_in_cv_ops(NUMBER_TYPE, op_node, *var_list))
         { //buscar variables en condicion

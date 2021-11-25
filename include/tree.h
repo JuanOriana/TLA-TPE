@@ -21,7 +21,7 @@ typedef enum node_type
     LIST_NODE,
     CANVAS_NODE,
     PLOT_NODE,
-    CV_OP_TYPE,
+    CV_OP_NODE,
 } node_type;
 
 // Funciona como un wrapper generico (interfaz)

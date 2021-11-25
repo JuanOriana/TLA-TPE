@@ -41,7 +41,7 @@ int main_init = FALSE;
 %token <string> IF WHILE ELSE
 %token <string> SYMBOL_NAME
 
-%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP TRI_CV_OP_CHAR
+%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR
 %token <string> NUMBER STRING BOOLEAN ASCII
 
 %token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE CANVAS_TYPE
@@ -76,9 +76,9 @@ instruction:
 block: instruction DELIMETER block { $$ = (node_t *)add_element_to_list($3, $1); }
     | instruction DELIMETER { $$ = $1; }
 
-if: IF expression BRACK_OPEN block if_end { $$ = add_if_node($2, add_block_node($4), $5); };
+if: IF '(' expression ')' BRACK_OPEN block if_end { $$ = add_if_node($3, add_block_node($6), $7); };
 
-while: WHILE expression BRACK_OPEN block BRACK_CLOSE { $$ = add_while_node($2, add_block_node($4)); };
+while: WHILE '(' expression ')' BRACK_OPEN block BRACK_CLOSE { $$ = add_while_node($3, add_block_node($6)); };
 
 if_end: BRACK_CLOSE { $$ = NULL; }
     | BRACK_CLOSE ELSE BRACK_OPEN block BRACK_CLOSE { $$ = add_block_node($4); };
@@ -111,7 +111,7 @@ plot: PLOT SYMBOL_NAME                      { $$ = add_plot_node(add_variable_re
 
 //HACER
 cv_op: SYMBOL_NAME BIN_CV_OP BRACK_OPEN expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,NULL); }
-    | SYMBOL_NAME TRI_CV_OP_CHAR BRACK_OPEN expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$8,$4,$6,NULL); }
+    | SYMBOL_NAME BIN_CV_OP_CHAR BRACK_OPEN expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$8,$4,$6,NULL); }
     | SYMBOL_NAME TRI_CV_OP BRACK_OPEN expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,$8); }
 
 expression: '(' expression ')'              { $$ = add_expression_node(add_operation_node("("), $2, add_operation_node(")")); }

@@ -72,7 +72,7 @@ node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t 
     {
         node->data = NULL;
     }
-    node->type = CV_OP_TYPE;
+    node->type = CV_OP_NODE;
     node->var = var;
     node->x = x;
     node->y = y;
@@ -256,7 +256,18 @@ node_t *add_number_node(char *number)
 node_t *add_canvas_node(char *width, char *height)
 {
     node_t *canvas = add_generic_node(CANVAS_NODE, width, NULL, NULL, NULL);
-    canvas->meta2 = height;
+    if (height != NULL)
+    {
+        canvas->meta2 = malloc(strlen(height) + 1);
+        if (canvas->meta2 == NULL)
+        {
+            free(canvas->meta);
+            free(canvas);
+            printf("Hubo un error en el malloc");
+            return NULL;
+        }
+        strcpy(canvas->meta2, height);
+    }
     return canvas;
 }
 

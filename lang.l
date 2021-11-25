@@ -39,12 +39,12 @@ plot       {return PLOT;}
 !=|<=|>=|==|<|>             { strcpy(yylval.string, yytext); return BIN_OP; }  
 &&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
 \|\|	                    { strcpy(yylval.string, "||"); return BIN_OP; }
-\+|\*|\/		                { strcpy(yylval.string, yytext); return BIN_OP; }
+\+|\*|\/		            { strcpy(yylval.string, yytext); return BIN_OP; }
 !		                    { strcpy(yylval.string, "!"); return UNI_OP; }
 
 hor|vert                    { strcpy(yylval.string, yytext); return TRI_CV_OP; }
 dot                         {strcpy(yylval.string, yytext); return BIN_CV_OP; }
-char                        { strcpy(yylval.string, yytext); return TRI_CV_OP_CHAR; }
+char                        { strcpy(yylval.string, yytext); return BIN_CV_OP_CHAR; }
 
 if                          { strcpy(yylval.string, yytext); return IF; }
 else                        { strcpy(yylval.string, yytext); return ELSE; }

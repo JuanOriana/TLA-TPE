@@ -1,22 +1,14 @@
 int n1 = 1;
 int n2 = 1;
-string xd = "fiumba\n";
-int n3 = 0;
-int test;
-write n1;
-write n2;
+canvas cv = {30,10};
+int i = 0;
 
-while (n3 < 120){
-    write "Adivina el proximo valor de n: ";
-    read test;
-    n3 = xd;
-    if (test == n3){
-        write "Le pegaste!!\n";
-    }
-    else{
-        write "No le pegaste!!\n";
-        write n3;
-    };
-    n1 = n2;
-    n2 = n3;
+cv char {10,3, 'x'};
+cv char {20,3, 'x'};
+while (i < 30){
+    cv hor {0,30,i};    
+    cv vert {0,18,i};
+    i = i +3;
 };
+
+plot cv;

@@ -48,7 +48,7 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    fprintf(out, "#include <stdio.h>\n int main() {\n");
+    fprintf(out, "#include <stdio.h>\n#include \"./include/canvas_utils.h\"\nint main() {\n");
 
     yyparse(&program);
 
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     fprintf(out, "\n}");
     fclose(out);
 
-    system("gcc temp.c -lm -o program");
+    system("gcc temp.c canvas_utils.c -lm -o program");
 
     printf("\nSuccesfully parsed\n");
 }
