@@ -34,7 +34,7 @@ node_t *add_generic_node(node_type node_type, char *meta, node_t *n1, node_t *n2
     return node;
 }
 
-node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x, struct node_t *y, struct node_t *axis)
+node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, node_t *x, node_t *y, node_t *axis, node_t *axis2)
 {
     cv_op_node_t *node = malloc(sizeof(cv_op_node_t));
     if (node == NULL)
@@ -77,6 +77,7 @@ node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t 
     node->x = x;
     node->y = y;
     node->axis = axis;
+    node->axis2 = axis2;
 
     return (node_t *)node;
 }
@@ -279,4 +280,9 @@ node_t *add_operation_node(char *operation)
 node_t *add_while_node(node_t *condition, node_t *block)
 {
     return add_generic_node(WHILE_NODE, NULL, condition, block, NULL);
+}
+
+node_t *add_return_node(node_t *expression)
+{
+    return add_generic_node(RETURN_NODE, NULL, expression, NULL, NULL);
 }

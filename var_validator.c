@@ -163,7 +163,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
     case IF_NODE:
         if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
         { // miro que la condicion sea valida
-            ERROR("An if condition may only contain numbers\n");
+            ERROR("An if condition may only be numeric\n");
             error = -1;
         }
         (*var_list)->references++;
@@ -181,15 +181,31 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
     case WHILE_NODE:
         if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
         { //buscar variables en condicion
-            ERROR("A while condition may only contain numbers\n");
+            ERROR("A while condition may only be numeric\n");
             error = -1;
         }
         (*var_list)->references++;
         check_and_set_variables_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
         //  *var_list=free_list(*var_list);
         break;
+    case RETURN_NODE:
+        if (!check_var_type_in_expression(NUMBER_TYPE, node->next_1, *var_list))
+        { //buscar variables en condicion
+            ERROR("A return statement may only be numeric\n");
+            error = -1;
+        }
+        //  *var_list=free_list(*var_list);
+        break;
     case CV_OP_NODE:;
         cv_op_node_t *op_node = (cv_op_node_t *)node;
+        check_and_set_variables_rec(op_node->var, var_list);
+        variable_node *op_node_var = (variable_node *)op_node->var;
+        if (error != -1 && (op_node_var->var_type != CANVAS_TYPE))
+        {
+            ERROR("Variable %s of type %s is trying to be used in function %s without being a canvas \n", op_node_var->name,
+                  get_type_from_enum(op_node_var->var_type), (char *)op_node->op);
+            error = -1;
+        }
         if (!check_var_type_in_cv_ops(NUMBER_TYPE, op_node, *var_list))
         { //buscar variables en condicion
             ERROR("Every coordenate parameter in cv operation %s should be numeric\n", (char *)op_node->op);
@@ -253,6 +269,10 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
 
 int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
 { // expresion tiene 3 espacios que no pueden ser todos nulos, esta llamada rompe la busqueda en cada uno
+    if (expr->type == VARIABLE_NODE)
+    {
+        return check_var_type_in_expression_rec(type, expr, var_list);
+    }
     return check_var_type_in_expression_rec(type, expr->next_1, var_list) &&
            check_var_type_in_expression_rec(type, expr->next_2, var_list) &&
            check_var_type_in_expression_rec(type, expr->next_3, var_list);
@@ -262,7 +282,8 @@ int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
 {
     return check_var_type_in_expression_rec(type, node->x, var_list) &&
            check_var_type_in_expression_rec(type, node->y, var_list) &&
-           check_var_type_in_expression_rec(type, node->axis, var_list);
+           check_var_type_in_expression_rec(type, node->axis, var_list) &&
+           check_var_type_in_expression_rec(type, node->axis2, var_list);
 }
 
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)

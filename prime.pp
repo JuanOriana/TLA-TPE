@@ -3,6 +3,7 @@ int max;
 int impossible = 0;
 int done = 0;
 canvas cv = {26,11};
+main:
 write "Escribe hasta que primo quieres probar: ";
 read max;
 write "\n";
@@ -39,7 +40,7 @@ while(start <= max){
     write " ";
     if (start == 2 || start == 3){
         done = 1;
-    };
+    }
 
     if (done == 0){
         if (!(start <= 1 || start % 2 == 0 || start % 3 == 0)){
@@ -47,13 +48,13 @@ while(start <= max){
             while (j*j < start){
                 if (start % j ==0 || start % (j+2) == 0){
                     impossible = 1;
-                };
+                }
                 j = j+6;
-            };
+            }
         }else{
             impossible = 1;
-        };
-    };
+        }
+    }
 
     if (impossible == 1){
         write "no ";
@@ -61,12 +62,12 @@ while(start <= max){
     else
     {
         cv dot {start%10*2+3,start/10+1};
-    };
+    }
     write "es primo\n";
 
     start = start + 1;
-};
+}
 
 write "\n\n Primos del 0 al 99: \n";
-
+cv color{3};
 plot cv;

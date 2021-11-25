@@ -22,6 +22,7 @@ typedef enum node_type
     CANVAS_NODE,
     PLOT_NODE,
     CV_OP_NODE,
+    RETURN_NODE
 } node_type;
 
 // Funciona como un wrapper generico (interfaz)
@@ -41,6 +42,7 @@ typedef enum node_type
 // LIST_NODE        X               reference    next
 // CANVAS_NODE      X               width        height     X
 // PLOT_NODE        X               canvas       X          X
+// RETURN_NODE      X               return_val   X          X
 
 typedef struct node_t
 {
@@ -71,6 +73,7 @@ typedef struct cv_op_node_t
     struct node_t *x;
     struct node_t *y;
     struct node_t *axis;
+    struct node_t *axis2;
 
 } cv_op_node_t;
 
@@ -79,7 +82,7 @@ node_t *add_value_variable(node_t *var_node, node_t *expression);
 node_t *assign_variable_node(char *name, node_t *expression);
 node_t *add_variable_reference(char *name);
 
-node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, struct node_t *x, struct node_t *y, struct node_t *axis);
+node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, node_t *x, node_t *y, node_t *axis, node_t *axis2);
 
 node_t *add_expression_node(node_t *first, node_t *second, node_t *third);
 node_t *add_instruction_node(node_t *node_t);
@@ -98,6 +101,7 @@ node_t *add_canvas_node(char *width, char *height);
 node_t *add_block_node(node_t *list);
 node_t *add_if_node(node_t *condition, node_t *then, node_t *otherwise);
 node_t *add_while_node(node_t *condition, node_t *block);
+node_t *add_return_node(node_t *expression);
 node_t *add_operation_node(char *operation);
 
 #endif

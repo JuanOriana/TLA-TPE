@@ -216,7 +216,7 @@ void cv_op_to_c(node_t *node)
     //x e y coords.
     if (strcmp(op_node->op, "dot") == 0)
     {
-        P("set_char_in_coords(%s,'*',", var->name);
+        P("cv_set_char_in_coords(%s,'*',", var->name);
         expresion_to_c(op_node->x);
         P(",");
         expresion_to_c(op_node->y);
@@ -224,7 +224,7 @@ void cv_op_to_c(node_t *node)
     }
     else if (strcmp(op_node->op, "char") == 0)
     {
-        P("set_char_in_coords(%s,%s,", var->name, op_node->data);
+        P("cv_set_char_in_coords(%s,%s,", var->name, op_node->data);
         expresion_to_c(op_node->x);
         P(",");
         expresion_to_c(op_node->y);
@@ -257,6 +257,19 @@ void cv_op_to_c(node_t *node)
     {
         P("cv_set_color(&%s,", var->name);
         expresion_to_c(op_node->x);
+        P(");")
+    }
+    // X=x1 Y=y1 axis= x2 axis2 = y2
+    else if (strcmp(op_node->op, "fill") == 0)
+    {
+        P("cv_fill_area(%s,%s,", var->name, op_node->data);
+        expresion_to_c(op_node->x);
+        P(",");
+        expresion_to_c(op_node->y);
+        P(",");
+        expresion_to_c(op_node->axis);
+        P(",");
+        expresion_to_c(op_node->axis2);
         P(");")
     }
     P("\n");

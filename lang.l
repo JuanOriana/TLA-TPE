@@ -28,6 +28,7 @@ canvas     { yylval.number = CANVAS_TYPE; return CANVAS_TYPE; }
 write      { return WRITE; }
 read       { return READ; }
 plot       {return PLOT;}
+main:      {return MAIN;}
 
 
 '[\x00-\x7F]'                 { strcpy(yylval.string, yytext); return ASCII; }
@@ -42,6 +43,7 @@ plot       {return PLOT;}
 \+|\*|\/		            { strcpy(yylval.string, yytext); return BIN_OP; }
 !		                    { strcpy(yylval.string, "!"); return UNI_OP; }
 
+fill                        { strcpy(yylval.string, yytext); return QUAD_CV_OP_CHAR; }
 hor|vert                    { strcpy(yylval.string, yytext); return TRI_CV_OP; }
 dot                         {strcpy(yylval.string, yytext); return BIN_CV_OP; }
 char                        { strcpy(yylval.string, yytext); return BIN_CV_OP_CHAR; }
@@ -51,6 +53,8 @@ color                       { strcpy(yylval.string, yytext); return UNI_CV_OP; }
 if                          { strcpy(yylval.string, yytext); return IF; }
 else                        { strcpy(yylval.string, yytext); return ELSE; }
 while                       { strcpy(yylval.string, yytext); return WHILE; }
+return                       { strcpy(yylval.string, yytext); return RETURN; }
+
 \{                           { return BRACK_OPEN; }
 \}                           { return BRACK_CLOSE; }
 

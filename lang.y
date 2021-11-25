@@ -35,20 +35,20 @@ int main_init = FALSE;
 
 }
 
-%token START EOL FIN DELIMETER BRACK_OPEN BRACK_CLOSE
+%token MAIN EOL FIN DELIMETER BRACK_OPEN BRACK_CLOSE RETURN
 %token ASSIGN WRITE READ SIZE PLOT
 
 %token <string> IF WHILE ELSE
 %token <string> SYMBOL_NAME
 
-%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR UNI_CV_OP
+%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR UNI_CV_OP QUAD_CV_OP_CHAR
 %token <string> NUMBER STRING BOOLEAN ASCII
 
 %token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE CANVAS_TYPE
 %token <number> NATURAL
 
 %type <number> type
-%type <node> full_declare declare assign value expression full_cv_declare cv_declare cv_value
+%type <node> full_declare declare assign value expression full_cv_declare cv_declare cv_value return
 %type <node> instruction write read if if_end while plot cv_op 
 %type <list> program block
 
@@ -59,27 +59,30 @@ int main_init = FALSE;
 %parse-param {node_t ** program}
 
 %%
-program: instruction DELIMETER program { $$ = (*program = (node_t *)add_element_to_list($3, $1));}
+program: instruction program { $$ = (*program = (node_t *)add_element_to_list($2, $1));}
     | FIN { $$ = (*program = (node_t *)add_instruction_list_node(NULL)); };
 
 instruction:
-    full_declare    { $$ = add_instruction_node($1); }
-    | full_cv_declare {$$ = add_instruction_node($1);}
-    | assign        { $$ = add_instruction_node($1); }
-    | write         {  $$ = add_instruction_node($1); }
-    | read          {  $$ = add_instruction_node($1); }
-    | if            { $$ = add_instruction_node($1); }
-    | while         { $$ = add_instruction_node($1); }
-    | plot          { $$ = add_instruction_node($1); }
-    | cv_op         { $$ = add_instruction_node($1); }
-    | START         { main_init=TRUE; $$=NULL; };
+    full_declare DELIMETER    { $$ = add_instruction_node($1); }
+    | full_cv_declare DELIMETER {$$ = add_instruction_node($1);}
+    | assign DELIMETER        { $$ = add_instruction_node($1); }
+    | write DELIMETER         { if (main_init==FALSE){yyerror(program,"Syntax error calling write previous main");}else{$$ = add_instruction_node($1);} }
+    | read  DELIMETER         { if (main_init==FALSE){yyerror(program,"Syntax error calling read previous main");}else{$$ = add_instruction_node($1);} }
+    | if                      { if (main_init==FALSE){yyerror(program,"Syntax error calling if previous main");}else{$$ = add_instruction_node($1);} }
+    | while                   { if (main_init==FALSE){yyerror(program,"Syntax error calling while previous main");}else{$$ = add_instruction_node($1);} }
+    | plot  DELIMETER        { if (main_init==FALSE){yyerror(program,"Syntax error calling plot previous main");}else{$$ = add_instruction_node($1);} }
+    | cv_op DELIMETER        { if (main_init==FALSE){yyerror(program,"Syntax error calling cv_op previous main");}else{$$ = add_instruction_node($1);} }
+    | return DELIMETER        { if (main_init==FALSE){yyerror(program,"Syntax error returning outside of main");}else{$$ = add_instruction_node($1);} }
+    | MAIN          { if (main_init==TRUE){yyerror(program,"Syntax error calling mains after previous main entry");}else{main_init=TRUE; $$=NULL; }};
 
-block: instruction DELIMETER block { $$ = (node_t *)add_element_to_list($3, $1); }
-    | instruction DELIMETER { $$ = $1; }
+block: instruction block { $$ = (node_t *)add_element_to_list($2, $1); }
+    | instruction { $$ = $1; }
 
 if: IF '(' expression ')' BRACK_OPEN block if_end { $$ = add_if_node($3, add_block_node($6), $7); };
 
 while: WHILE '(' expression ')' BRACK_OPEN block BRACK_CLOSE { $$ = add_while_node($3, add_block_node($6)); };
+
+return: RETURN expression {$$ = add_return_node($2);};
 
 if_end: BRACK_CLOSE { $$ = NULL; }
     | BRACK_CLOSE ELSE BRACK_OPEN block BRACK_CLOSE { $$ = add_block_node($4); };
@@ -107,14 +110,14 @@ write: WRITE expression                     { $$ = add_print_node($2); }
 
 read: READ SYMBOL_NAME                      { $$ = add_read_node(add_variable_reference($2)); };
 
-//HACER
 plot: PLOT SYMBOL_NAME                      { $$ = add_plot_node(add_variable_reference($2)); };
 
-//HACER
-cv_op: SYMBOL_NAME BIN_CV_OP BRACK_OPEN expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,NULL); }
-    | SYMBOL_NAME BIN_CV_OP_CHAR BRACK_OPEN expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$8,$4,$6,NULL); }
-    | SYMBOL_NAME TRI_CV_OP BRACK_OPEN expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,$8); }
-    | SYMBOL_NAME UNI_CV_OP BRACK_OPEN expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,0,0); }
+cv_op: SYMBOL_NAME BIN_CV_OP BRACK_OPEN expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,0,0); }
+    | SYMBOL_NAME BIN_CV_OP_CHAR BRACK_OPEN expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$8,$4,$6,0,0); }
+    | SYMBOL_NAME TRI_CV_OP BRACK_OPEN expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,$8,0); }
+    | SYMBOL_NAME UNI_CV_OP BRACK_OPEN expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,0,0,0); }
+    | SYMBOL_NAME QUAD_CV_OP_CHAR BRACK_OPEN expression ',' expression ','expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$12,$4,$6,$8,$10); }
+
 
 expression: '(' expression ')'              { $$ = add_expression_node(add_operation_node("("), $2, add_operation_node(")")); }
     | UNI_OP expression                     { $$ = add_expression_node(add_operation_node($1), $2, NULL); }

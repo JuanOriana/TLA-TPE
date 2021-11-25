@@ -30,7 +30,7 @@ void canvas_plot(canvas_t canvas)
     set_cmd_color(CV_WHITE);
 }
 
-void set_char_in_coords(canvas_t canvas, char c, int x, int y)
+void cv_set_char_in_coords(canvas_t canvas, char c, int x, int y)
 {
     if (!(canvas.canvas_mat == NULL))
         canvas.canvas_mat[y * canvas.width + x] = c;
@@ -109,5 +109,25 @@ static void set_cmd_color(cv_color color)
     default:
         printf("\033[0m");
         break;
+    }
+}
+
+void cv_fill_area(canvas_t canvas, char c, int x1, int y1, int x2, int y2)
+{
+    if (canvas.canvas_mat == NULL || x1 > x2 || y1 > y2)
+    {
+        return;
+    }
+    int startX = MAX(0, x1);
+    int endX = MIN(canvas.width, x2);
+    int startY = MAX(0, y1);
+    int endY = MIN(canvas.height, y2);
+
+    for (int j = startX; j <= endX; j++)
+    {
+        for (int i = startY; i <= endY; i++)
+        {
+            canvas.canvas_mat[i * canvas.width + j] = c;
+        }
     }
 }

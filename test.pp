@@ -1,13 +1,12 @@
-canvas cv = {10,10};
-canvas cv2 = {10,10};
-canvas cv3 = {10,10};
-canvas cv4 = {10,10};
-canvas cv5 = {10,10};
-
+string hola = "hola";
+canvas cv = {20,10};
+int i = 0;
+main:
+cv fill {2,2,5,5,'/'};
+while (3+2/2){
+    cv dot {i,i};
+    i = i +1;
+    return hola;
+}
 cv color {4};
-int n = 0;
-while (n < 10){
-    cv dot {n,n};
-    n = n + 1;
-};
 plot cv;

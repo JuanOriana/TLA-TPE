@@ -36,8 +36,9 @@ typedef enum node_type
 // INSTRUCTION_NODE X               instruction  next-node         X
 // NEGATION_NODE
 // EXPRESSION_NODE  X               first        second     third
-// LIST_NODE        X               reference    next
+// LIST_NODE        X               reference    next       X
 // CANVAS_NODE      X               width        height     X
+// RETURN_NODE      X               return_val   X          X
 
 typedef struct node_t
 {
