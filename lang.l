@@ -36,7 +36,7 @@ plot       {return PLOT;}
 =                           { return ASSIGN;     }
 ;                           { return DELIMETER;     }
 
-!=|<=|>=|==|<|>             { strcpy(yylval.string, yytext); return BIN_OP; }  
+!=|<=|>=|==|<|>|%           { strcpy(yylval.string, yytext); return BIN_OP; }  
 &&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
 \|\|	                    { strcpy(yylval.string, "||"); return BIN_OP; }
 \+|\*|\/		            { strcpy(yylval.string, yytext); return BIN_OP; }

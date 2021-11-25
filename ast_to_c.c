@@ -146,9 +146,9 @@ void write_to_c(node_t *node)
     case VARIABLE_NODE:;
         variable_node *var = (variable_node *)(node->next_1);
         if (var->var_type == NUMBER_TYPE)
-            P("printf(\"value of %%s = %%d\\n\", \"%s\",(int)(%s));\n", var->name, var->name);
+            P("printf(\"%%d\",(int)(%s));\n", var->name);
         if (var->var_type == STRING_TYPE)
-            P("printf(\"value of %%s = %%s\", \"%s\", %s);\n", var->name, var->name);
+            P("printf(\"%%s\", %s);\n", var->name);
         free(var->name);
         break;
     case EXPRESSION_NODE:
