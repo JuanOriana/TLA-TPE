@@ -1,4 +1,4 @@
-#include "include/tree.h"
+#include "include/ast.h"
 #include "include/ast_to_c.h"
 
 #include "y.tab.h"
@@ -34,9 +34,6 @@ void free_operation_node(node_t *node);
 void tree_to_c(node_t *program, FILE *file)
 {
 
-#if YYDEBUG == 1
-    printf("Empezando con el translate de código\n");
-#endif
     output = file;
 
     instruction_list_to_c(program);
@@ -86,9 +83,7 @@ void instruction_list_to_c(node_t *list)
             P(" ;");
             break;
         default:
-#if YYDEBUG == 1
-            printf("Algo salio mal\n");
-#endif
+            printf("UNEXPECTED ERROR");
             break;
         }
         free(curr);

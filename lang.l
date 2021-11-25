@@ -1,5 +1,5 @@
 %{
-#include "./include/tree.h"
+#include "./include/ast.h"
 #include "y.tab.h"
 #include <stdio.h>
 
@@ -31,6 +31,10 @@ write      { return WRITE; }
 read       { return READ; }
 plot       {return PLOT;}
 main:      {return MAIN;}
+if                          { return IF; }
+else                        {return ELSE; }
+while                       { return WHILE; }
+return                       { return RETURN; }
 
 
 '[\x00-\x7F]'                 { strcpy(yylval.string, yytext); return ASCII; }
@@ -41,10 +45,9 @@ main:      {return MAIN;}
 =                           { return ASSIGN;     }
 ;                           { return DELIMETER;     }
 
-!=|<=|>=|==|<|>|%           { strcpy(yylval.string, yytext); return BIN_OP; }  
-&&		                    { strcpy(yylval.string, "&&"); return BIN_OP; }
-\|\|	                    { strcpy(yylval.string, "||"); return BIN_OP; }
-\+|\*|\/		            { strcpy(yylval.string, yytext); return BIN_OP; }
+!=|<=|>=|==|<|>            { strcpy(yylval.string, yytext); return BIN_OP; }  
+&&|\|\|		                { strcpy(yylval.string, yytext); return BIN_OP; }
+\+|\*|\/|%		            { strcpy(yylval.string, yytext); return BIN_OP; }
 !		                    { strcpy(yylval.string, "!"); return UNI_OP; }
 
 fill                        { strcpy(yylval.string, yytext); return QUAD_CV_OP_CHAR; }
@@ -53,20 +56,14 @@ dot                         {strcpy(yylval.string, yytext); return BIN_CV_OP; }
 char                        { strcpy(yylval.string, yytext); return BIN_CV_OP_CHAR; }
 color                       { strcpy(yylval.string, yytext); return UNI_CV_OP; }
 
+\{                           { return CURLY_OPEN; }
+\}                           { return CURLY_CLOSE; }
 
-if                          { strcpy(yylval.string, yytext); return IF; }
-else                        { strcpy(yylval.string, yytext); return ELSE; }
-while                       { strcpy(yylval.string, yytext); return WHILE; }
-return                       { strcpy(yylval.string, yytext); return RETURN; }
+[a-zA-Z_][a-zA-Z0-9_]*      { strcpy(yylval.string, yytext); return SYMBOL_ID; }
 
-\{                           { return BRACK_OPEN; }
-\}                           { return BRACK_CLOSE; }
-
-[a-zA-Z_][a-zA-Z0-9_]*      { strcpy(yylval.string, yytext); return SYMBOL_NAME; }
-
-#.*                         ; // Ignore comments 
-{SP}                        ; // Ignore whitespaces
-<<EOF>>                     { static int once = 0; return once++ ? 0 : FIN; }
+\/\/.*                         ; // Ignore single line comments 
+{SP}                           ; // Ignore whitespaces
+<<EOF>>                     { static int once = 0; return once++ ? 0 : FINAL_EOF; }
 
 .                           { return yytext[0]; };
 

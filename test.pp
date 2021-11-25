@@ -1,4 +1,10 @@
+double one = f2.00000000001;
+int two;
+string order ="todo en orden";
 main:
-if ((1+1)/2){
-    write (3+f0.5);
+two = 2;
+
+if (one == two){
+    write "algo raro";
 }
+else {write order;}
