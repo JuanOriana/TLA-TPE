@@ -8,7 +8,13 @@
 #define P(...) fprintf(output, ##__VA_ARGS__);
 FILE *output;
 
-/*-------------------- FUNCIONES ---------------------*/
+typedef struct canvas_ref
+{
+    char name[128];
+    struct canvas_ref *next;
+} canvas_ref;
+
+canvas_ref *canvas_list;
 
 void yyerror(node_t **program, char *s);
 
@@ -34,6 +40,15 @@ void tree_to_c(node_t *program, FILE *file)
     output = file;
 
     instruction_list_to_c(program);
+
+    canvas_ref *aux = canvas_list;
+    while (aux != NULL)
+    {
+        canvas_ref *next = aux->next;
+        P("free(%s.canvas_mat);\n", aux->name);
+        free(aux);
+        aux = next;
+    }
 }
 
 void instruction_list_to_c(node_t *list)
@@ -95,6 +110,10 @@ void variable_to_c(node_t *node)
             break;
         case CANVAS_TYPE:
             P("canvas_t %s", var->name);
+            canvas_ref *cv_ref = malloc(sizeof(canvas_ref));
+            strcpy(cv_ref->name, var->name);
+            cv_ref->next = canvas_list;
+            canvas_list = cv_ref;
             break;
         default:
             break;
@@ -184,7 +203,7 @@ void plot_to_c(node_t *node)
     if (node->next_1->type == VARIABLE_NODE)
     {
         variable_node *var = (variable_node *)(node->next_1);
-        P("canvas_plot(%s);", var->name);
+        P("canvas_plot(%s);\n", var->name);
         free(var->name);
     }
     free(node->next_1);
