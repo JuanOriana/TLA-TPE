@@ -1,12 +1,13 @@
-string hola = "hola";
-canvas cv = {20,10};
-int i = 0;
+int i = 10;
+string hola = "DONE!";
 main:
-cv fill {2,2,5,5,'/'};
-while (3+2/2){
-    cv dot {i,i};
-    i = i +1;
-    return 1;
+
+while (i < 30){
+    write i+1;
+    i = i+3;
+    if (i%2 ==0){
+        return 0;
+    }
 }
-cv color {4};
-plot cv;
+
+write hola;

@@ -80,6 +80,11 @@ void instruction_list_to_c(node_t *list)
         case CV_OP_NODE:
             cv_op_to_c(curr);
             break;
+        case RETURN_NODE:
+            P("return");
+            expresion_to_c(curr->next_1);
+            P(" ;");
+            break;
         default:
 #if YYDEBUG == 1
             printf("Algo salio mal\n");
