@@ -128,7 +128,7 @@ void variable_to_c(node_t *node)
         }
         else if (var->value->type == CANVAS_NODE)
         {
-            P("{.canvas_mat=malloc(%s*%s), .width=%s, .height=%s}", (char *)var->value->meta, (char *)var->value->meta2,
+            P("{.canvas_mat=malloc(%s*%s), .width=%s, .height=%s, .color=CV_WHITE}", (char *)var->value->meta, (char *)var->value->meta2,
               (char *)var->value->meta, (char *)var->value->meta2);
             free(var->value->meta);
             free(var->value->meta2);
@@ -233,6 +233,14 @@ void cv_op_to_c(node_t *node)
         expresion_to_c(op_node->axis);
         P(");")
     }
+    //X = color
+    else if (strcmp(op_node->op, "color") == 0)
+    {
+        P("cv_set_color(&%s,", var->name);
+        expresion_to_c(op_node->x);
+        P(");")
+    }
+    P("\n");
     free(op_node->var);
 }
 void switch_expresion_to_c(node_t *node)

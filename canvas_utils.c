@@ -5,11 +5,14 @@
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 static void horizontal_bound(int width);
+static void set_cmd_color(cv_color color);
 
 void canvas_plot(canvas_t canvas)
 {
     if (canvas.canvas_mat == NULL)
         return;
+
+    set_cmd_color(canvas.color);
     horizontal_bound(canvas.width);
     for (int i = 0; i < canvas.height; i++)
     {
@@ -24,6 +27,7 @@ void canvas_plot(canvas_t canvas)
         printf("|\n");
     }
     horizontal_bound(canvas.width);
+    set_cmd_color(CV_WHITE);
 }
 
 void set_char_in_coords(canvas_t canvas, char c, int x, int y)
@@ -69,6 +73,13 @@ void cv_vertical_line(canvas_t canvas, int low_bound, int high_bound, int x)
     }
 }
 
+void cv_set_color(canvas_t *canvas, int color)
+{
+
+    if (color >= CV_WHITE && color <= CV_BLUE)
+        canvas->color = color;
+}
+
 static void horizontal_bound(int width)
 {
     for (int i = 0; i < width + 2; i++)
@@ -76,4 +87,27 @@ static void horizontal_bound(int width)
         putchar('-');
     }
     putchar('\n');
+}
+
+static void set_cmd_color(cv_color color)
+{
+    switch (color)
+    {
+    case CV_BLUE:
+        printf("\033[0;34m");
+        break;
+    case CV_GREEN:
+        printf("\033[0;32m");
+        break;
+    case CV_RED:
+        printf("\033[0;31m");
+        break;
+    case CV_YELLOW:
+        printf("\033[0;33m");
+        break;
+    case CV_WHITE:
+    default:
+        printf("\033[0m");
+        break;
+    }
 }

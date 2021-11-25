@@ -41,7 +41,7 @@ int main_init = FALSE;
 %token <string> IF WHILE ELSE
 %token <string> SYMBOL_NAME
 
-%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR
+%token <string> BIN_OP UNI_OP BIN_CV_OP TRI_CV_OP BIN_CV_OP_CHAR UNI_CV_OP
 %token <string> NUMBER STRING BOOLEAN ASCII
 
 %token <number> STRING_TYPE NUMBER_TYPE BOOLEAN_TYPE CANVAS_TYPE
@@ -49,11 +49,12 @@ int main_init = FALSE;
 
 %type <number> type
 %type <node> full_declare declare assign value expression full_cv_declare cv_declare cv_value
-%type <node> instruction write read if if_end while plot cv_op
+%type <node> instruction write read if if_end while plot cv_op 
 %type <list> program block
 
 %nonassoc IN
 %left BIN_OP '-'
+%left UNI_OP
 
 %parse-param {node_t ** program}
 
@@ -113,6 +114,7 @@ plot: PLOT SYMBOL_NAME                      { $$ = add_plot_node(add_variable_re
 cv_op: SYMBOL_NAME BIN_CV_OP BRACK_OPEN expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,NULL); }
     | SYMBOL_NAME BIN_CV_OP_CHAR BRACK_OPEN expression ',' expression ',' ASCII BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$8,$4,$6,NULL); }
     | SYMBOL_NAME TRI_CV_OP BRACK_OPEN expression ',' expression ',' expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,$8); }
+    | SYMBOL_NAME UNI_CV_OP BRACK_OPEN expression BRACK_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,0,0); }
 
 expression: '(' expression ')'              { $$ = add_expression_node(add_operation_node("("), $2, add_operation_node(")")); }
     | UNI_OP expression                     { $$ = add_expression_node(add_operation_node($1), $2, NULL); }

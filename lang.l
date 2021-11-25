@@ -45,6 +45,8 @@ plot       {return PLOT;}
 hor|vert                    { strcpy(yylval.string, yytext); return TRI_CV_OP; }
 dot                         {strcpy(yylval.string, yytext); return BIN_CV_OP; }
 char                        { strcpy(yylval.string, yytext); return BIN_CV_OP_CHAR; }
+color                       { strcpy(yylval.string, yytext); return UNI_CV_OP; }
+
 
 if                          { strcpy(yylval.string, yytext); return IF; }
 else                        { strcpy(yylval.string, yytext); return ELSE; }
