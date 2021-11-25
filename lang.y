@@ -76,9 +76,9 @@ instruction:
     | MAIN          { if (main_init==TRUE){yyerror(program,"Syntax error calling mains after previous main entry");}else{main_init=TRUE; $$=NULL; }};
 
 block: instruction block { $$ = (node_t *)add_element_to_list($2, $1); }
-    | instruction { $$ = $1; }
+    | instruction { $$ = $1; };
 
-if: IF '(' expression ')' BRACK_OPEN block if_end { $$ = add_if_node($3, add_block_node($6), $7); };
+if: IF '(' expression ')' BRACK_OPEN block if_end {$$ = add_if_node($3, add_block_node($6), $7); };
 
 while: WHILE '(' expression ')' BRACK_OPEN block BRACK_CLOSE { $$ = add_while_node($3, add_block_node($6)); };
 

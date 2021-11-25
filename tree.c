@@ -30,6 +30,7 @@ node_t *add_generic_node(node_type node_type, char *meta, node_t *n1, node_t *n2
     node->next_1 = n1;
     node->next_2 = n2;
     node->next_3 = n3;
+    node->meta2 = NULL;
 
     return node;
 }

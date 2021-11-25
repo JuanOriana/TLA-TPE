@@ -31,7 +31,7 @@ int check_if_exists(var_node *list, char *name);
 void check_and_set_variables_rec(node_t *node, var_node **var_list);
 void check_var_types_in_value(int type, variable_node *variable_node_var, var_node *var_list);
 int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
-int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list);
+int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent);
 int check_var_type_in_list_op(int type, node_t *node, var_node *var_list);
 int check_var_type_in_list_value(int type, node_t *node, var_node *var_list);
 int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list);
@@ -272,22 +272,22 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
 { // expresion tiene 3 espacios que no pueden ser todos nulos, esta llamada rompe la busqueda en cada uno
     if (expr->type == VARIABLE_NODE)
     {
-        return check_var_type_in_expression_rec(type, expr, var_list);
+        return check_var_type_in_expression_rec(type, expr, var_list, expr);
     }
-    return check_var_type_in_expression_rec(type, expr->next_1, var_list) &&
-           check_var_type_in_expression_rec(type, expr->next_2, var_list) &&
-           check_var_type_in_expression_rec(type, expr->next_3, var_list);
+    return check_var_type_in_expression_rec(type, expr->next_1, var_list, expr) &&
+           check_var_type_in_expression_rec(type, expr->next_2, var_list, expr) &&
+           check_var_type_in_expression_rec(type, expr->next_3, var_list, expr);
 }
 
 int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
 {
-    return check_var_type_in_expression_rec(type, node->x, var_list) &&
-           check_var_type_in_expression_rec(type, node->y, var_list) &&
-           check_var_type_in_expression_rec(type, node->axis, var_list) &&
-           check_var_type_in_expression_rec(type, node->axis2, var_list);
+    return check_var_type_in_expression_rec(type, node->x, var_list, (node_t *)node) &&
+           check_var_type_in_expression_rec(type, node->y, var_list, (node_t *)node) &&
+           check_var_type_in_expression_rec(type, node->axis, var_list, (node_t *)node) &&
+           check_var_type_in_expression_rec(type, node->axis2, var_list, (node_t *)node);
 }
 
-int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
+int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent)
 { //resuelve el valor de expresiones
     if (node == NULL)
     {
@@ -306,7 +306,10 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
         variable_node_var->var_type = type_var;
         //Normalize numeric values
         if (type_var == DOUBLE_TYPE)
+        {
+            parent->meta2 = (void *)1;
             type_var = INTEGER_TYPE;
+        }
         if (type == DOUBLE_TYPE)
             type = INTEGER_TYPE;
         return type_var == type;
@@ -314,16 +317,23 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
     case TEXT_NODE:
         return STRING_TYPE == type;
         break;
-    case INTEGER_NODE:
     case DOUBLE_NODE:
+        //Aviso que incluye un double
+        parent->meta2 = (void *)1;
+    case INTEGER_NODE:
     case OPERATION_NODE:
         return INTEGER_TYPE == type || DOUBLE_TYPE == type;
         break;
     case CANVAS_NODE:
         return CANVAS_TYPE == type;
         break;
-    case EXPRESSION_NODE:
-        return check_var_type_in_expression(type, node, var_list);
+    case EXPRESSION_NODE:;
+        int ret = check_var_type_in_expression(type, node, var_list);
+        if ((long)node->meta2 == 1)
+        {
+            parent->meta2 = (void *)1;
+        }
+        return ret;
         break;
     default:
 #if YYDEBUG == 1

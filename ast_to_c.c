@@ -138,6 +138,11 @@ void variable_to_c(node_t *node)
     if (var->value != NULL)
     {
         P(" = ");
+        if (var->var_type == INTEGER_TYPE)
+            P("(int)");
+        if (var->var_type == DOUBLE_TYPE)
+            P("(double)");
+
         if (var->value->type == EXPRESSION_NODE)
         {
             expresion_to_c(var->value);
@@ -168,6 +173,7 @@ void variable_to_c(node_t *node)
 void write_to_c(node_t *node)
 {
     // dependiendo del tipo de contenido del print se corre una función distinta
+
     switch (node->next_1->type)
     {
     case VARIABLE_NODE:;
@@ -181,9 +187,16 @@ void write_to_c(node_t *node)
         free(var->name);
         break;
     case EXPRESSION_NODE:
-        P("printf(\"%%d\\n\", (int) (");
+        if ((long)node->next_1->meta2 == 1)
+        {
+            P("printf(\"%%f\\n\",");
+        }
+        else
+        {
+            P("printf(\"%%d\\n\",");
+        }
         expresion_to_c(node->next_1);
-        P("));\n");
+        P(");\n");
         break;
     case TEXT_NODE:;
         P("printf(\"%%s\", %s);\n", (char *)node->next_1->meta);
@@ -318,7 +331,7 @@ void switch_expresion_to_c(node_t *node)
 void expresion_to_c(node_t *exp)
 {
     //May not be an expression! beware
-    int integral = exp->next_2 && strcmp(exp->next_2->meta, "%") == 0;
+    int integral = exp->next_2 && exp->next_2->meta && strcmp(exp->next_2->meta, "%") == 0;
     if (exp->type == VARIABLE_NODE)
     {
         switch_expresion_to_c(exp);
