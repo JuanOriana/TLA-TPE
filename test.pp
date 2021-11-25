@@ -1,12 +1,4 @@
 string hola = "DONE!";
-double n = 3;
+int n = f3.2;
 main:
-while (n < 30){
-    write n;
-    n = n + 0.5;
-    if (n%4 ==0){
-        return 0;
-    }
-}
-
-write hola;
+cv dot {1,2};

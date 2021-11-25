@@ -18,7 +18,7 @@ extern int reduced;
 %option yylineno
 
 INTEGER [0-9]+
-DOUBLE [0-9]+.[0-9]+
+DOUBLE f[0-9]+.[0-9]+
 
 SP      [ \t\r\n]+
 
