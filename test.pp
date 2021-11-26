@@ -1,13 +1,10 @@
-int i = 10;
-string hola = "DONE!";
+double one = f2.00000000001;
+int two;
+string order ="todo en orden";
 main:
+two = 2;
 
-while (i < 30){
-    write i+1;
-    i = i+3;
-    if (i%2 ==0){
-        return 0;
-    }
+if (one % two){
+    write "algo raro";
 }
-
-write hola;
+else {write order;}

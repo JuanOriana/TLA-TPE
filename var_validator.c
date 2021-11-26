@@ -31,9 +31,7 @@ int check_if_exists(var_node *list, char *name);
 void check_and_set_variables_rec(node_t *node, var_node **var_list);
 void check_var_types_in_value(int type, variable_node *variable_node_var, var_node *var_list);
 int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
-int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list);
-int check_var_type_in_list_op(int type, node_t *node, var_node *var_list);
-int check_var_type_in_list_value(int type, node_t *node, var_node *var_list);
+int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent);
 int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list);
 static char *get_type_from_enum(int type);
 
@@ -130,7 +128,8 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         {
         case VARIABLE_NODE: //read variable
             check_and_set_variables_rec(node->next_1, var_list);
-            if (((variable_node *)node->next_1)->var_type != INTEGER_TYPE)
+            int type = ((variable_node *)node->next_1)->var_type;
+            if (type != INTEGER_TYPE && type != DOUBLE_TYPE)
             {
                 ERROR("Variable %s in read not of type numeric \n", ((variable_node *)node->next_1)->name);
                 error = -1;
@@ -169,12 +168,10 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         (*var_list)->references++;
         check_and_set_variables_internal(node->next_2->next_1, var_list); //busco variables en el bloque del if
         ;
-        // *var_list=free_list(*var_list);
         if (node->next_3 != NULL) //else es opcional
         {
             (*var_list)->references++;
             check_and_set_variables_internal(node->next_3->next_1, var_list); //busco variables en el bloque del else
-            // *var_list=free_list(*var_list);
         }
 
         break;
@@ -186,7 +183,6 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         }
         (*var_list)->references++;
         check_and_set_variables_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
-        //  *var_list=free_list(*var_list);
         break;
     case RETURN_NODE:
         if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
@@ -194,7 +190,6 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             ERROR("A return statement may only be numeric\n");
             error = -1;
         }
-        //  *var_list=free_list(*var_list);
         break;
     case CV_OP_NODE:;
         cv_op_node_t *op_node = (cv_op_node_t *)node;
@@ -260,9 +255,7 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
 
         break;
     default:
-#if YYDEBUG == 1
-        printf("Algo salio mal var checker types in value\n");
-#endif
+        ERROR("UNEXPECTED ERROR\n");
         break;
     }
 }
@@ -271,22 +264,22 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
 { // expresion tiene 3 espacios que no pueden ser todos nulos, esta llamada rompe la busqueda en cada uno
     if (expr->type == VARIABLE_NODE)
     {
-        return check_var_type_in_expression_rec(type, expr, var_list);
+        return check_var_type_in_expression_rec(type, expr, var_list, expr);
     }
-    return check_var_type_in_expression_rec(type, expr->next_1, var_list) &&
-           check_var_type_in_expression_rec(type, expr->next_2, var_list) &&
-           check_var_type_in_expression_rec(type, expr->next_3, var_list);
+    return check_var_type_in_expression_rec(type, expr->next_1, var_list, expr) &&
+           check_var_type_in_expression_rec(type, expr->next_2, var_list, expr) &&
+           check_var_type_in_expression_rec(type, expr->next_3, var_list, expr);
 }
 
 int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
 {
-    return check_var_type_in_expression_rec(type, node->x, var_list) &&
-           check_var_type_in_expression_rec(type, node->y, var_list) &&
-           check_var_type_in_expression_rec(type, node->axis, var_list) &&
-           check_var_type_in_expression_rec(type, node->axis2, var_list);
+    return check_var_type_in_expression_rec(type, node->x, var_list, (node_t *)node) &&
+           check_var_type_in_expression_rec(type, node->y, var_list, (node_t *)node) &&
+           check_var_type_in_expression_rec(type, node->axis, var_list, (node_t *)node) &&
+           check_var_type_in_expression_rec(type, node->axis2, var_list, (node_t *)node);
 }
 
-int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
+int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent)
 { //resuelve el valor de expresiones
     if (node == NULL)
     {
@@ -303,27 +296,46 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list)
             error = -1;
         }
         variable_node_var->var_type = type_var;
+        //Normalize numeric values
+        if (type_var == DOUBLE_TYPE)
+        {
+            if ((long)parent->meta2 == 0)
+                parent->meta2 = (void *)1;
+            type_var = INTEGER_TYPE;
+        }
+        if (type == DOUBLE_TYPE)
+            type = INTEGER_TYPE;
         return type_var == type;
         break;
     case TEXT_NODE:
         return STRING_TYPE == type;
         break;
+    case DOUBLE_NODE:
+        //Aviso que incluye un double
+        if ((long)parent->meta2 == 0)
+            parent->meta2 = (void *)1;
     case INTEGER_NODE:
-        return INTEGER_TYPE == type;
-        break;
     case OPERATION_NODE:
-        return INTEGER_TYPE == type;
+        //Exceptuando estas operaciones, TODO el resto asegura un resultado integer (flag en -1)
+        if (strcmp(node->meta, "(") != 0 && strcmp(node->meta, ")") != 0 && strcmp(node->meta, "+") != 0 && strcmp(node->meta, "-") != 0 && strcmp(node->meta, "/") != 0 && strcmp(node->meta, "*") != 0)
+        {
+            parent->meta2 = (void *)-1;
+        }
+        return INTEGER_TYPE == type || DOUBLE_TYPE == type;
         break;
     case CANVAS_NODE:
         return CANVAS_TYPE == type;
         break;
-    case EXPRESSION_NODE:
-        return check_var_type_in_expression(type, node, var_list);
+    case EXPRESSION_NODE:;
+        int ret = check_var_type_in_expression(type, node, var_list);
+        if ((long)node->meta2 == 1 && (long)parent->meta2 == 0)
+        {
+            parent->meta2 = (void *)1;
+        }
+        return ret;
         break;
     default:
-#if YYDEBUG == 1
-        printf("Algo salio mal var checker expression rec\n");
-#endif
+        ERROR("UNEXPECTED ERROR\n");
         break;
     }
     return FALSE; //SHOULD NOT BE HERE
@@ -391,7 +403,9 @@ static char *get_type_from_enum(int type)
     case STRING_TYPE:
         return "string";
     case INTEGER_TYPE:
-        return "integer";
+        return "number";
+    case DOUBLE_TYPE:
+        return "double";
     case CANVAS_TYPE:
         return "canvas";
     default:

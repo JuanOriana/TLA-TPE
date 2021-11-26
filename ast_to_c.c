@@ -1,4 +1,4 @@
-#include "include/tree.h"
+#include "include/ast.h"
 #include "include/ast_to_c.h"
 
 #include "y.tab.h"
@@ -28,15 +28,12 @@ void instruction_list_to_c(node_t *list);
 void if_to_c(node_t *node);
 void while_to_c(node_t *node);
 void free_text_node(node_t *node);
-void free_INTEGER_NODE(node_t *node);
+void free_integer_node(node_t *node);
 void free_operation_node(node_t *node);
 
 void tree_to_c(node_t *program, FILE *file)
 {
 
-#if YYDEBUG == 1
-    printf("Empezando con el translate de código\n");
-#endif
     output = file;
 
     instruction_list_to_c(program);
@@ -86,9 +83,7 @@ void instruction_list_to_c(node_t *list)
             P(" ;");
             break;
         default:
-#if YYDEBUG == 1
-            printf("Algo salio mal\n");
-#endif
+            printf("UNEXPECTED ERROR");
             break;
         }
         free(curr);
@@ -109,6 +104,9 @@ void variable_to_c(node_t *node)
         {
         case INTEGER_TYPE:
             P("int %s", var->name);
+            break;
+        case DOUBLE_TYPE:
+            P("double %s", var->name);
             break;
         case STRING_TYPE:
             P("char * %s", var->name);
@@ -135,11 +133,16 @@ void variable_to_c(node_t *node)
     if (var->value != NULL)
     {
         P(" = ");
+        if (var->var_type == INTEGER_TYPE)
+            P("(int)");
+        if (var->var_type == DOUBLE_TYPE)
+            P("(double)");
+
         if (var->value->type == EXPRESSION_NODE)
         {
             expresion_to_c(var->value);
         }
-        else if (var->value->type == TEXT_NODE || var->value->type == INTEGER_NODE)
+        else if (var->value->type == TEXT_NODE || var->value->type == INTEGER_NODE || var->value->type == DOUBLE_NODE)
         {
             P("%s", (char *)var->value->meta);
             free(var->value->meta);
@@ -165,20 +168,30 @@ void variable_to_c(node_t *node)
 void write_to_c(node_t *node)
 {
     // dependiendo del tipo de contenido del print se corre una función distinta
+
     switch (node->next_1->type)
     {
     case VARIABLE_NODE:;
         variable_node *var = (variable_node *)(node->next_1);
         if (var->var_type == INTEGER_TYPE)
             P("printf(\"%%d\",(int)(%s));\n", var->name);
+        if (var->var_type == DOUBLE_TYPE)
+            P("printf(\"%%lf\",(double)(%s));\n", var->name);
         if (var->var_type == STRING_TYPE)
             P("printf(\"%%s\", %s);\n", var->name);
         free(var->name);
         break;
     case EXPRESSION_NODE:
-        P("printf(\"%%d\\n\", (int) (");
+        if ((long)node->next_1->meta2 == 1)
+        {
+            P("printf(\"%%f\",");
+        }
+        else
+        {
+            P("printf(\"%%d\",");
+        }
         expresion_to_c(node->next_1);
-        P("));\n");
+        P(");\n");
         break;
     case TEXT_NODE:;
         P("printf(\"%%s\", %s);\n", (char *)node->next_1->meta);
@@ -197,7 +210,13 @@ void read_to_c(node_t *node)
     {
         variable_node *var = (variable_node *)(node->next_1);
         if (var->var_type == INTEGER_TYPE)
+        {
             P("scanf(\"%%d\", &%s);", var->name);
+        }
+        else if (var->var_type == DOUBLE_TYPE)
+        {
+            P("scanf(\"%%lf\", &%s);", var->name);
+        }
         free(var->name);
     }
     free(node->next_1);
@@ -294,6 +313,7 @@ void switch_expresion_to_c(node_t *node)
         break;
     case TEXT_NODE:
     case INTEGER_NODE:
+    case DOUBLE_NODE:
     case OPERATION_NODE:
         P(" %s ", (char *)node->meta);
         free(node->meta);
@@ -311,8 +331,16 @@ void expresion_to_c(node_t *exp)
         switch_expresion_to_c(exp);
         return;
     }
+    int integral = 0;
+    if (exp && exp->next_2 && exp->next_2->meta)
+    {
+        char *meta_str = (char *)exp->next_2->meta;
+        integral = strcmp(meta_str, "%") == 0;
+    }
     if (exp->next_1 != NULL)
     {
+        if (integral)
+            P("(int)");
         switch_expresion_to_c(exp->next_1);
         free(exp->next_1);
     }
@@ -325,6 +353,8 @@ void expresion_to_c(node_t *exp)
 
     if (exp->next_3 != NULL)
     {
+        if (integral)
+            P("(int)");
         switch_expresion_to_c(exp->next_3);
         free(exp->next_3);
     }

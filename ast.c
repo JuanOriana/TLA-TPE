@@ -1,4 +1,4 @@
-#include "./include/tree.h"
+#include "./include/ast.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +30,7 @@ node_t *add_generic_node(node_type node_type, char *meta, node_t *n1, node_t *n2
     node->next_1 = n1;
     node->next_2 = n2;
     node->next_3 = n3;
+    node->meta2 = NULL;
 
     return node;
 }
@@ -252,6 +253,11 @@ node_t *add_text_node(char *text)
 node_t *add_integer_node(char *integer)
 {
     return add_generic_node(INTEGER_NODE, integer, NULL, NULL, NULL);
+}
+
+node_t *add_double_node(char *floating)
+{
+    return add_generic_node(DOUBLE_NODE, floating + 1, NULL, NULL, NULL);
 }
 
 node_t *add_canvas_node(char *width, char *height)

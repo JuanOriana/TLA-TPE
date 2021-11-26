@@ -8,7 +8,7 @@ write "Escribe hasta que primo quieres probar: ";
 read max;
 write "\n";
 
-# Y labels
+// Y labels
 cv char {3,0,'0'};
 cv char {5,0,'1'};
 cv char {7,0,'2'};
@@ -20,7 +20,7 @@ cv char {17,0,'7'};
 cv char {19,0,'8'};
 cv char {21,0,'9'};
 
-# X labels
+// X labels
 cv char {0,1,'0'};
 cv char {0,2,'1'};
 cv char {0,3,'2'};
@@ -67,7 +67,12 @@ while(start <= max){
 
     start = start + 1;
 }
+if (max > 99){
+    max = 99;
+}
 
-write "\n\n Primos del 0 al 99: \n";
+write "\n\n Primos del 0 al ";
+write max;
+write ":\n";
 cv color{3};
 plot cv;
