@@ -58,6 +58,9 @@ color                       { strcpy(yylval.string, yytext); return UNI_CV_OP; }
 
 \{                           { return CURLY_OPEN; }
 \}                           { return CURLY_CLOSE; }
+\(                           { return PARENTH_OPEN; }
+\)                           { return PARENTH_CLOSE; }
+final                        { return FINAL; }
 
 [a-zA-Z_][a-zA-Z0-9_]*      { strcpy(yylval.string, yytext); return SYMBOL_ID; }
 

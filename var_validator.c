@@ -20,14 +20,15 @@ typedef struct var_node
     int var_type;
     char name[MAX_VAR_NAME_LENGTH];
     int references;
+    int assignations_left;
     struct var_node *next;
 } var_node;
 
-var_node *create_var_node(int type, char *name);
+var_node *create_var_node(int type, char *name, int is_constant);
 void add_to_list(var_node **list, var_node *element);
 void check_and_set_variables_internal(node_t *tree, var_node **var_list);
 var_node *free_list(var_node *list);
-int check_if_exists(var_node *list, char *name);
+int check_if_exists(var_node *list, char *name, var_node **found);
 void check_and_set_variables_rec(node_t *node, var_node **var_list);
 void check_var_types_in_value(int type, variable_node *variable_node_var, var_node *var_list);
 int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
@@ -66,23 +67,34 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
     switch (node->type)
     {
     case VARIABLE_NODE:;
+        var_node *found = NULL;
+
         variable_node *variable_node_var = (variable_node *)node;
         if (variable_node_var->declared)
         {
-            if (check_if_exists(*var_list, variable_node_var->name) != -1)
+            if (check_if_exists(*var_list, variable_node_var->name, &found) != -1)
             {
                 ERROR("Variable %s already declared \n", variable_node_var->name);
                 error = -1;
             }
-            add_to_list(var_list, create_var_node(variable_node_var->var_type, variable_node_var->name));
+            add_to_list(var_list, create_var_node(variable_node_var->var_type, variable_node_var->name, variable_node_var->is_constant));
         }
         else
         {
-            int type = check_if_exists(*var_list, variable_node_var->name);
+            int type = check_if_exists(*var_list, variable_node_var->name, &found);
             if (type == -1)
             {
                 ERROR("Variable %s is not declared yet\n", variable_node_var->name);
                 error = -1;
+            }
+            else if (found->assignations_left == 0)
+            {
+                ERROR("Variable %s is final and yet trying to be assigned a value\n", variable_node_var->name);
+                error = -1;
+            }
+            else if (found->assignations_left > 0)
+            {
+                found->assignations_left--;
             }
             variable_node_var->var_type = type;
         }
@@ -235,7 +247,8 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
         }
         break;
     case VARIABLE_NODE:;
-        int type = check_if_exists(var_list, ((variable_node *)variable_node_var->value)->name);
+        var_node *found = NULL;
+        int type = check_if_exists(var_list, ((variable_node *)variable_node_var->value)->name, &found);
         if (type == -1)
         {
             ERROR("Variable %s not declared yet \n", ((variable_node *)variable_node_var->value)->name);
@@ -288,8 +301,9 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list,
     switch (node->type)
     {
     case VARIABLE_NODE:;
+        var_node *found = NULL;
         variable_node *variable_node_var = (variable_node *)node;
-        int type_var = check_if_exists(var_list, variable_node_var->name);
+        int type_var = check_if_exists(var_list, variable_node_var->name, &found);
         if (type_var == -1)
         {
             ERROR("Variable not declared yet %s\n", variable_node_var->name);
@@ -341,13 +355,14 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list,
     return FALSE; //SHOULD NOT BE HERE
 }
 
-var_node *create_var_node(int type, char *name)
+var_node *create_var_node(int type, char *name, int is_constant)
 { //inicializa un nodo de la lista de variables, arranca con 0 referencias para poder ser borrado en caso de ninguna referencia adicional
     var_node *new = malloc(sizeof(var_node));
     new->var_type = type;
     strcpy(new->name, name);
     new->references = 0;
     new->next = NULL;
+    new->assignations_left = is_constant ? 1 : -1;
     return new;
 }
 
@@ -381,7 +396,7 @@ var_node *free_list(var_node *list)
     return current;
 }
 
-int check_if_exists(var_node *list, char *name)
+int check_if_exists(var_node *list, char *name, var_node **found)
 { //recorre la lista de variables y compara nombres, si no enuentra la variable devuelve -1
     var_node *current = list;
     while (current != NULL)
@@ -389,6 +404,7 @@ int check_if_exists(var_node *list, char *name)
         var_node *next = current->next;
         if (strcmp(current->name, name) == 0)
         {
+            *found = current;
             return current->var_type;
         }
         current = next;

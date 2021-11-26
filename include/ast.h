@@ -57,6 +57,7 @@ typedef struct variable_node
 {
     node_type type;
     int declared;
+    int is_constant;
     int var_type;
     char *name;
     node_t *value; // EXPRESSION_NODE TEXT_NODE INTEGER_NODE CANVAS_NODE
@@ -76,6 +77,7 @@ typedef struct cv_op_node_t
 } cv_op_node_t;
 
 node_t *declare_variable_node(char *name, int var_type);
+node_t *declare_constant_variable_node(char *name, int var_type);
 node_t *add_value_variable(node_t *var_node, node_t *expression);
 node_t *assign_variable_node(char *name, node_t *expression);
 node_t *add_variable_reference(char *name);
