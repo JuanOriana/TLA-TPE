@@ -4,9 +4,9 @@ int impossible = 0;
 int done = 0;
 canvas cv = {26,11};
 main:
-write "Escribe hasta que primo quieres probar: ";
-read max;
-write "\n";
+write("Escribe hasta que primo quieres probar: ");
+read(max);
+write("\n");
 
 // Y labels
 cv char {3,0,'0'};
@@ -36,8 +36,8 @@ cv char {0,10,'9'};
 while(start <= max){
     impossible = 0;
     done = 0;
-    write start;
-    write " ";
+    write(start);
+    write(" ");
     if (start == 2 || start == 3){
         done = 1;
     }
@@ -57,13 +57,13 @@ while(start <= max){
     }
 
     if (impossible == 1){
-        write "no ";
+        write("no ");
     }
     else
     {
         cv dot {start%10*2+3,start/10+1};
     }
-    write "es primo\n";
+    write("es primo\n");
 
     start = start + 1;
 }
@@ -71,8 +71,8 @@ if (max > 99){
     max = 99;
 }
 
-write "\n\n Primos del 0 al ";
-write max;
-write ":\n";
+write("\n\n Primos del 0 al ");
+write(max);
+write(":\n");
 cv color{3};
-plot cv;
+plot(cv);
