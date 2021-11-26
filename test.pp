@@ -1,7 +1,6 @@
 string order ="todo en orden";
-final double one = 3;
-int n = 3;
+final double one = f0.1;
 main:
-order = "hola";
-n = 2;
-n = 1 ;
+canvas cv = {10,10};
+cv dot {one,3};
+plot (cv);

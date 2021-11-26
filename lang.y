@@ -100,12 +100,12 @@ value: expression   { $$ = $1; }
 
 cv_value: CURLY_OPEN INTEGER ',' INTEGER CURLY_CLOSE {$$ = add_canvas_node($2,$4);};
 
-write: WRITE expression                     { $$ = add_print_node($2); }
-    | WRITE STRING                          { $$ = add_print_node(add_text_node($2)); }
+write: WRITE PARENTH_OPEN expression PARENTH_CLOSE                   { $$ = add_print_node($3); }
+    | WRITE PARENTH_OPEN STRING PARENTH_CLOSE                        { $$ = add_print_node(add_text_node($3));};
 
-read: READ SYMBOL_ID                      { $$ = add_read_node(add_variable_reference($2)); };
+read: READ PARENTH_OPEN SYMBOL_ID PARENTH_CLOSE                     { $$ = add_read_node(add_variable_reference($3)); };
 
-plot: PLOT SYMBOL_ID                      { $$ = add_plot_node(add_variable_reference($2)); };
+plot: PLOT PARENTH_OPEN SYMBOL_ID PARENTH_CLOSE                      { $$ = add_plot_node(add_variable_reference($3)); };
 
 cv_op: SYMBOL_ID BIN_CV_OP CURLY_OPEN expression ',' expression CURLY_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,0,$4,$6,0,0); }
     | SYMBOL_ID BIN_CV_OP_CHAR CURLY_OPEN expression ',' expression ',' ASCII CURLY_CLOSE { $$ = add_generic_cv_op_node(add_variable_reference($1),$2,$8,$4,$6,0,0); }
