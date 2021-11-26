@@ -20,7 +20,7 @@ typedef struct var_node
     int var_type;
     char name[MAX_VAR_NAME_LENGTH];
     int references;
-    int assignations_left;
+    int is_constant;
     struct var_node *next;
 } var_node;
 
@@ -87,14 +87,10 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
                 ERROR("Variable %s is not declared yet\n", variable_node_var->name);
                 error = -1;
             }
-            else if (found->assignations_left == 0)
+            else if (found->is_constant)
             {
                 ERROR("Variable %s is final and yet trying to be assigned a value\n", variable_node_var->name);
                 error = -1;
-            }
-            else if (found->assignations_left > 0)
-            {
-                found->assignations_left--;
             }
             variable_node_var->var_type = type;
         }
@@ -362,7 +358,7 @@ var_node *create_var_node(int type, char *name, int is_constant)
     strcpy(new->name, name);
     new->references = 0;
     new->next = NULL;
-    new->assignations_left = is_constant ? 1 : -1;
+    new->is_constant = is_constant;
     return new;
 }
 
