@@ -1,10 +1,13 @@
-double one = f2.00000000001;
-int two;
 string order ="todo en orden";
+final int one = 2;
+int n = 3;
 main:
-two = 2;
-
-if (one % two){
-    write "algo raro";
+order = "hola";
+n = 2;
+n = 1 ;
+write one + 2;
+if (one < 3){
+    write "OOPS";
+    one = one -1;
 }
-else {write order;}
+write one;

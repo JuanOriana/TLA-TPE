@@ -88,6 +88,13 @@ node_t *add_expression_node(node_t *first, node_t *second, node_t *third)
     return add_generic_node(EXPRESSION_NODE, NULL, first, second, third);
 }
 
+node_t *declare_constant_variable_node(char *name, int var_type)
+{
+    node_t *ret = declare_variable_node(name, var_type);
+    ((variable_node *)ret)->is_constant = TRUE;
+    return ret;
+}
+
 node_t *declare_variable_node(char *name, int var_type)
 {
     variable_node *node = calloc(1, sizeof(variable_node));
@@ -106,6 +113,7 @@ node_t *declare_variable_node(char *name, int var_type)
     }
     node->var_type = var_type;
     node->declared = TRUE;
+    node->is_constant = FALSE;
     strcpy(node->name, name);
 
     return (node_t *)node;
@@ -132,6 +140,7 @@ node_t *add_value_variable(node_t *past_node, node_t *expression)
     node->declared = TRUE;
     node->type = VARIABLE_NODE;
     node->var_type = var_node->var_type;
+    node->is_constant = var_node->is_constant;
 
     free(var_node->name);
     free(var_node);
