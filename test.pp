@@ -4,7 +4,7 @@ string order ="todo en orden";
 main:
 two = 2;
 
-if (one == two){
+if (one % two){
     write "algo raro";
 }
 else {write order;}
