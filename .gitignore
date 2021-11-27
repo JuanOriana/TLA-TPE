@@ -6,3 +6,4 @@ temp.c
 gcan
 program
 *.dSYM
+.idea
