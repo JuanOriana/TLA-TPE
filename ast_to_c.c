@@ -245,7 +245,13 @@ void cv_op_to_c(node_t *node)
     }
     else if (strcmp(op_node->op, "char") == 0)
     {
-        P("cv_set_char_in_coords(%s,%s,", var->name, op_node->data);
+        char *data = op_node->data;
+
+        if (data[1] == '\\')
+        {
+            data = "'\\\\'";
+        }
+        P("cv_set_char_in_coords(%s,%s,", var->name, data);
         expresion_to_c(op_node->x);
         P(",");
         expresion_to_c(op_node->y);

@@ -1,0 +1,68 @@
+int mood = 0;
+canvas happy = {20,10};
+canvas medium = {20,10};
+canvas sad = {20,10};
+canvas angry = {20,10};
+
+main:
+
+// Happy canvas
+happy fill {2,2,6,4,'#'};
+happy fill {12,2,16,4,'#'};
+happy fill {2,8,17,8,'_'};
+happy char {2,8,'{'};
+happy char {17,8,'}'};
+happy color {3};
+
+// Medium canvas
+medium fill {2,2,7,3,'8'};
+medium fill {12,2,17,3,'8'};
+medium hor {2,7,1};
+medium hor {12,17,1};
+medium hor {2,17,7};
+medium color {2};
+
+// Sad canvas
+sad fill {2,2,7,3,'&'};
+sad fill {12,2,17,3,'&'};
+sad hor {2,7,1};
+sad hor {12,17,1};
+sad char {1,1,'/'};
+sad char {18,1,'\'};
+sad char {7,1,'\'};
+sad char {11,1,'/'};
+sad char {5,4,'U'};
+sad fill {3,6,16,6,'_'};
+sad char {2,7,'('};
+sad char {17,7,')'};
+sad color {4};
+
+// Angry canvas
+angry fill {2,2,7,3,'X'};
+angry fill {12,2,17,3,'X'};
+angry hor {2,7,2};
+angry hor {12,17,2};
+angry char {8,2,'\'};
+angry char {11,2,'/'};
+angry hor {2,17,6};
+angry char {2,6,'/'};
+angry char {17,6,'\'};
+angry color {1};
+
+write("Como te sentis hoy del 1 al 10?: ");
+read(mood);
+if (mood <= 2){
+    plot(angry);
+    return 0;
+}
+if (mood <= 4){
+    plot(sad);
+    return 0;
+}
+if (mood <= 7){
+    plot(medium);
+    return 0;
+}
+else{
+    plot (happy);
+}
