@@ -6,12 +6,12 @@
 
 typedef enum node_type
 {
-    TEXT_NODE = 0,
+    STRING_NODE = 0,
     INTEGER_NODE,
     DOUBLE_NODE,
     OPERATION_NODE,
     VARIABLE_NODE,
-    PRINT_NODE,
+    WRITE_NODE,
     READ_NODE,
     IF_NODE,
     WHILE_NODE,
@@ -28,15 +28,15 @@ typedef enum node_type
 
 // REF
 // TYPE             META            N1           N2         N3          META2
-// TEXT_NODE        texto           X            X          X           X
-// INTEGER_NODE      numero          X            X          X          X
+// STRING_NODE      texto           X            X          X           X
+// INTEGER_NODE     numero          X            X          X           X
 // DOUBLE_NODE      numero          X            X          X           X
 // OPERATION_NODE   operation       X            X          X           (0 si no contiene floats y 1 si si)
-// PRINT_NODE       X               content      X          X           X
+// WRITE_NODE       X               content      X          X           X
 // READ_NODE        X               content      X          X           X
 // IF_NODE          X               condition    then       otherwise   X
 // WHILE_NODE       X               condition    first-i      X         X
-// INSTRUCTION_NODE X               instruction  next-node         X    X
+// INSTRUCTION_NODE X               instruction  next-node    X         X
 // EXPRESSION_NODE  X               first        second     third       X
 // CANVAS_NODE      widht            X           X          X           height
 // PLOT_NODE        X               canvas       X          X           x
@@ -60,7 +60,7 @@ typedef struct variable_node
     int is_constant;
     int var_type;
     char *name;
-    node_t *value; // EXPRESSION_NODE TEXT_NODE INTEGER_NODE CANVAS_NODE
+    node_t *value;
 } variable_node;
 
 typedef struct cv_op_node_t
@@ -89,12 +89,12 @@ node_t *add_instruction_node(node_t *node_t);
 node_t *add_instruction_list_node(node_t *node_t);
 node_t *add_element_to_list(node_t *list, node_t *element);
 
-node_t *add_print_node(node_t *content);
+node_t *add_write_node(node_t *content);
 node_t *add_read_node(node_t *content);
 node_t *add_bin_cv_op_node(char *operation, node_t *canvas, node_t *first, node_t *second);
 node_t *add_plot_node(node_t *content);
 
-node_t *add_text_node(char *text);
+node_t *add_string_node(char *text);
 node_t *add_integer_node(char *integer);
 node_t *add_double_node(char *floating);
 node_t *add_canvas_node(char *width, char *height);

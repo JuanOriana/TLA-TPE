@@ -3,15 +3,15 @@
 #include "y.tab.h"
 #include <stdio.h>
 
-int fileno(FILE * stream);
+// int fileno(FILE * stream);
 
-void put_trimmed(char * str) {
-    int i; for(i=0; str[i]!=' '; i++);
-    memcpy(yylval.string, str, i);
-    yylval.string[i] = 0;
-}
+// void put_trimmed(char * str) {
+//     int i; for(i=0; str[i]!=' '; i++);
+//     memcpy(yylval.string, str, i);
+//     yylval.string[i] = 0;
+// }
 
-extern int reduced;
+// extern int reduced;
 
 %}
 
@@ -60,7 +60,7 @@ color                       { strcpy(yylval.string, yytext); return UNI_CV_OP; }
 \}                           { return CURLY_CLOSE; }
 \(                           { return PARENTH_OPEN; }
 \)                           { return PARENTH_CLOSE; }
-final                        { return FINAL; }
+ final                        { return FINAL; }
 
 [a-zA-Z_][a-zA-Z0-9_]*      { strcpy(yylval.string, yytext); return SYMBOL_ID; }
 

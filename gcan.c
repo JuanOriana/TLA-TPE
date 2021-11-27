@@ -24,28 +24,28 @@ int main(int argc, char **argv)
 
     if (argc == 1)
     {
-        printf("Reading program from stdin\n");
+        printf("Leyendo de entrada estandar\n");
     }
     else if (argc == 2)
     {
         yyin = fopen(argv[1], "r");
         if (yyin == NULL)
         {
-            perror("Error opening input file");
-            exit(-1);
+            perror("No se pudo abrir el archivo");
+            exit(EXIT_FAILURE);
         }
     }
     else
     {
-        printf("Usage: %s [file]\n", argv[0]);
-        exit(-1);
+        printf("Uso: %s [archivo.can]\n", argv[0]);
+        exit(EXIT_FAILURE);
     }
 
-    out = fopen("temp.c", "w+");
+    out = fopen("aux.c", "w+");
     if (out == NULL)
     {
-        perror("Error creating temporary file");
-        exit(-1);
+        perror("Error creando el archivo temporal");
+        exit(EXIT_FAILURE);
     }
 
     fprintf(out, "#include <stdio.h>\n#include \"./include/canvas_utils.h\"\nint main() {\n");
@@ -69,8 +69,8 @@ int main(int argc, char **argv)
     fprintf(out, "\n}");
     fclose(out);
 
-    system("gcc temp.c canvas_utils.c -lm -o program");
-    system("rm temp.c");
+    system("gcc aux.c canvas_utils.c -lm -o program");
+    system("rm aux.c");
 
     printf("\nSuccesfully parsed\n");
 }

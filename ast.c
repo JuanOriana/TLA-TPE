@@ -239,9 +239,9 @@ node_t *add_instruction_node(node_t *node)
     return add_generic_node(INSTRUCTION_NODE, NULL, node, NULL, NULL);
 }
 
-node_t *add_print_node(node_t *content)
+node_t *add_write_node(node_t *content)
 {
-    return add_generic_node(PRINT_NODE, NULL, content, NULL, NULL);
+    return add_generic_node(WRITE_NODE, NULL, content, NULL, NULL);
 }
 
 node_t *add_read_node(node_t *content)
@@ -254,9 +254,9 @@ node_t *add_plot_node(node_t *content)
     return add_generic_node(PLOT_NODE, NULL, content, NULL, NULL);
 }
 
-node_t *add_text_node(char *text)
+node_t *add_string_node(char *text)
 {
-    return add_generic_node(TEXT_NODE, text, NULL, NULL, NULL);
+    return add_generic_node(STRING_NODE, text, NULL, NULL, NULL);
 }
 
 node_t *add_integer_node(char *integer)

@@ -4,17 +4,15 @@
 #include <string.h>
 #include "include/ast.h"
 
-
 // Extern prototypes
 
 extern int yylex();
 void yyerror(node_t ** program, char *s);
-void warning(char * s);
 
-extern FILE * out;
-extern void * malloc();
+// extern FILE * out;
+// extern void * malloc();
 
-int yydebug = 1;
+// int yydebug = 1;
 int in_main = FALSE;
 
 %}
@@ -96,12 +94,12 @@ type: INTEGER_TYPE | STRING_TYPE | DOUBLE_TYPE;
 assign: SYMBOL_ID ASSIGN value { $$ = assign_variable_node($1, $3); };
 
 value: expression   { $$ = $1; }
-    | STRING        { $$ = add_text_node($1);};
+    | STRING        { $$ = add_string_node($1);};
 
 cv_value: CURLY_OPEN INTEGER ',' INTEGER CURLY_CLOSE {$$ = add_canvas_node($2,$4);};
 
-write: WRITE PARENTH_OPEN expression PARENTH_CLOSE                   { $$ = add_print_node($3); }
-    | WRITE PARENTH_OPEN STRING PARENTH_CLOSE                        { $$ = add_print_node(add_text_node($3));};
+write: WRITE PARENTH_OPEN expression PARENTH_CLOSE                   { $$ = add_write_node($3); }
+    | WRITE PARENTH_OPEN STRING PARENTH_CLOSE                        { $$ = add_write_node(add_string_node($3));};
 
 read: READ PARENTH_OPEN SYMBOL_ID PARENTH_CLOSE                     { $$ = add_read_node(add_variable_reference($3)); };
 

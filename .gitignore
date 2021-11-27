@@ -3,4 +3,6 @@ lex.yy.c
 y.tab.c
 .vscode
 temp.c
+gcan
 program
+*.dSYM

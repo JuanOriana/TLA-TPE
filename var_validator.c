@@ -104,7 +104,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             check_var_types_in_value(variable_node_var->var_type, variable_node_var, *var_list);
         }
         break;
-    case PRINT_NODE: //el caso donde recibis algo como write <algo>
+    case WRITE_NODE: //el caso donde recibis algo como write <algo>
         ;
         switch (node->next_1->type)
         {
@@ -115,12 +115,12 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         case EXPRESSION_NODE:
             if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
             {
-                ERROR("Variable in write is type text inside expression\n");
+                ERROR("Variable in write is type string inside expression\n");
                 error = -1;
             }
             break;
 
-        case TEXT_NODE:
+        case STRING_NODE:
             //va vacio porque no hay variables aca dentro
             break;
 
@@ -227,7 +227,7 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
 
     switch (variable_node_var->value->type)
     {
-    case TEXT_NODE:;
+    case STRING_NODE:;
         if (variable_node_var->var_type != STRING_TYPE)
         {
             ERROR("Variable %s is assigned a string when its actually a %s\n",
@@ -317,7 +317,7 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list,
             type = INTEGER_TYPE;
         return type_var == type;
         break;
-    case TEXT_NODE:
+    case STRING_NODE:
         return STRING_TYPE == type;
         break;
     case DOUBLE_NODE:

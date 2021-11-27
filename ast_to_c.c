@@ -27,7 +27,7 @@ void expresion_to_c(node_t *node);
 void instruction_list_to_c(node_t *list);
 void if_to_c(node_t *node);
 void while_to_c(node_t *node);
-void free_text_node(node_t *node);
+void free_string_node(node_t *node);
 void free_integer_node(node_t *node);
 void free_operation_node(node_t *node);
 
@@ -59,7 +59,7 @@ void instruction_list_to_c(node_t *list)
         case VARIABLE_NODE:
             variable_to_c(curr);
             break;
-        case PRINT_NODE:
+        case WRITE_NODE:
             write_to_c(curr);
             break;
         case READ_NODE:
@@ -142,7 +142,7 @@ void variable_to_c(node_t *node)
         {
             expresion_to_c(var->value);
         }
-        else if (var->value->type == TEXT_NODE || var->value->type == INTEGER_NODE || var->value->type == DOUBLE_NODE)
+        else if (var->value->type == STRING_NODE || var->value->type == INTEGER_NODE || var->value->type == DOUBLE_NODE)
         {
             P("%s", (char *)var->value->meta);
             free(var->value->meta);
@@ -193,7 +193,7 @@ void write_to_c(node_t *node)
         expresion_to_c(node->next_1);
         P(");\n");
         break;
-    case TEXT_NODE:;
+    case STRING_NODE:;
         P("printf(\"%%s\", %s);\n", (char *)node->next_1->meta);
         free(node->next_1->meta);
         break;
@@ -311,7 +311,7 @@ void switch_expresion_to_c(node_t *node)
         P(" %s ", var->name);
         free(var->name);
         break;
-    case TEXT_NODE:
+    case STRING_NODE:
     case INTEGER_NODE:
     case DOUBLE_NODE:
     case OPERATION_NODE:

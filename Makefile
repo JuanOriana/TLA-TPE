@@ -2,15 +2,12 @@ PHONY = all clean
 CCFLAGS = -Wall -Wno-unused-function -std=c99 -g -Wdiv-by-zero -fsanitize=address 
 YLFLAGS = -lfl
 MACYLFLAGS = -ll
-MKDIR_BIN = bin
 SRC_FOLDER = .
 
-all: bin parser
+all: parser
 
 PARSER_OBJ = compiler.o lex.yy.o y.tab.o
-
 PROGRAM_OBJ = program temp.c
-
 OBJ = lex.yy.c y.tab.c y.tab.h
 
 GCC_CXXFLAGS = -DMESSAGE='"Compiled with GCC"'
@@ -28,10 +25,8 @@ endif
 parser:
 	lex $(SRC_FOLDER)/lang.l
 	yacc -d $(SRC_FOLDER)/lang.y
-	$(CC) $(CCFLAGS) $(SRC_FOLDER)/ast.c $(SRC_FOLDER)/ast_to_c.c $(SRC_FOLDER)/var_validator.c lex.yy.c y.tab.c $(SRC_FOLDER)/compiler.c $(MACYLFLAGS) -o $(MKDIR_BIN)/compiler
+	$(CC) $(CCFLAGS) $(SRC_FOLDER)/ast.c $(SRC_FOLDER)/ast_to_c.c $(SRC_FOLDER)/var_validator.c lex.yy.c y.tab.c $(SRC_FOLDER)/gcan.c $(MACYLFLAGS) -o gcan
 	rm -rf $(OBJ)
 
-bin: $(shell mkdir -p $(MKDIR_BIN))
-
 clean: 
-	rm -rf $(PARSER_OBJ) $(PROGRAM_OBJ) $(OBJ) $(MKDIR_BIN)/compiler
+	rm -rf $(PARSER_OBJ) $(PROGRAM_OBJ) $(OBJ) gcan
