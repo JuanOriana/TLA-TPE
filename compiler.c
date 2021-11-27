@@ -70,6 +70,7 @@ int main(int argc, char **argv)
     fclose(out);
 
     system("gcc temp.c canvas_utils.c -lm -o program");
+    system("rm temp.c");
 
     printf("\nSuccesfully parsed\n");
 }
