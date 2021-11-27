@@ -26,34 +26,34 @@ typedef struct var_node
 
 var_node *create_var_node(int type, char *name, int is_constant);
 void add_to_list(var_node **list, var_node *element);
-void check_and_set_variables_internal(node_t *tree, var_node **var_list);
+void validate_vars_internal(node_t *tree, var_node **var_list);
 var_node *free_list(var_node *list);
 int check_if_exists(var_node *list, char *name, var_node **found);
-void check_and_set_variables_rec(node_t *node, var_node **var_list);
+void validate_vars_rec(node_t *node, var_node **var_list);
 void check_var_types_in_value(int type, variable_node *variable_node_var, var_node *var_list);
 int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
 int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent);
 int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list);
 static char *get_type_from_enum(int type);
 
-int check_and_set_variables(node_t *tree)
+int validate_vars(node_t *tree)
 { //inicializa la lista con un pseudo nodo para no pasar null
     var_node varinit;
     varinit.references = 2;
     varinit.next = NULL;
     varinit.var_type = -1;
     var_node *var_list = &varinit;
-    check_and_set_variables_internal(tree, &var_list);
+    validate_vars_internal(tree, &var_list);
     return error;
 }
 
-void check_and_set_variables_internal(node_t *tree, var_node **var_list)
+void validate_vars_internal(node_t *tree, var_node **var_list)
 {
     node_t *aux = tree;
     while (aux != NULL)
     {
         node_t *node = (node_t *)aux->next_1;
-        check_and_set_variables_rec(node, var_list);
+        validate_vars_rec(node, var_list);
         aux = aux->next_2;
     }
     if (var_list != NULL)
@@ -62,7 +62,7 @@ void check_and_set_variables_internal(node_t *tree, var_node **var_list)
     }
 }
 
-void check_and_set_variables_rec(node_t *node, var_node **var_list)
+void validate_vars_rec(node_t *node, var_node **var_list)
 {
     switch (node->type)
     {
@@ -109,7 +109,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         switch (node->next_1->type)
         {
         case VARIABLE_NODE:
-            check_and_set_variables_rec((node_t *)node->next_1, var_list);
+            validate_vars_rec((node_t *)node->next_1, var_list);
             break;
 
         case EXPRESSION_NODE:
@@ -135,7 +135,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         switch (node->next_1->type)
         {
         case VARIABLE_NODE: //read variable
-            check_and_set_variables_rec(node->next_1, var_list);
+            validate_vars_rec(node->next_1, var_list);
             int type = ((variable_node *)node->next_1)->var_type;
             if (type != INTEGER_TYPE && type != DOUBLE_TYPE)
             {
@@ -153,7 +153,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
     case PLOT_NODE:
         if (node->next_1->type == VARIABLE_NODE)
         {
-            check_and_set_variables_rec(node->next_1, var_list);
+            validate_vars_rec(node->next_1, var_list);
             if (error != -1 && ((variable_node *)node->next_1)->var_type != CANVAS_TYPE)
             {
                 ERROR("Variable %s of type %s is trying to be plotted without being a canvas \n", ((variable_node *)node->next_1)->name,
@@ -174,12 +174,12 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             error = -1;
         }
         (*var_list)->references++;
-        check_and_set_variables_internal(node->next_2->next_1, var_list); //busco variables en el bloque del if
+        validate_vars_internal(node->next_2->next_1, var_list); //busco variables en el bloque del if
         ;
         if (node->next_3 != NULL) //else es opcional
         {
             (*var_list)->references++;
-            check_and_set_variables_internal(node->next_3->next_1, var_list); //busco variables en el bloque del else
+            validate_vars_internal(node->next_3->next_1, var_list); //busco variables en el bloque del else
         }
 
         break;
@@ -190,7 +190,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
             error = -1;
         }
         (*var_list)->references++;
-        check_and_set_variables_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
+        validate_vars_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
         break;
     case RETURN_NODE:
         if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
@@ -201,7 +201,7 @@ void check_and_set_variables_rec(node_t *node, var_node **var_list)
         break;
     case CV_OP_NODE:;
         cv_op_node_t *op_node = (cv_op_node_t *)node;
-        check_and_set_variables_rec(op_node->var, var_list);
+        validate_vars_rec(op_node->var, var_list);
         variable_node *op_node_var = (variable_node *)op_node->var;
         if (error != -1 && (op_node_var->var_type != CANVAS_TYPE))
         {
@@ -264,7 +264,6 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
 
         break;
     default:
-        ERROR("UNEXPECTED ERROR\n");
         break;
     }
 }
@@ -345,7 +344,6 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list,
         return ret;
         break;
     default:
-        ERROR("UNEXPECTED ERROR\n");
         break;
     }
     return FALSE; //SHOULD NOT BE HERE

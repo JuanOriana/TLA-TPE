@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_VAR_NAME_LENGTH 256
+
 #define P(...) fprintf(output, ##__VA_ARGS__);
 FILE *output;
 
 typedef struct canvas_ref
 {
-    char name[128];
+    char name[MAX_VAR_NAME_LENGTH];
     struct canvas_ref *next;
 } canvas_ref;
 
@@ -27,9 +29,6 @@ void expresion_to_c(node_t *node);
 void instruction_list_to_c(node_t *list);
 void if_to_c(node_t *node);
 void while_to_c(node_t *node);
-void free_string_node(node_t *node);
-void free_integer_node(node_t *node);
-void free_operation_node(node_t *node);
 
 void tree_to_c(node_t *program, FILE *file)
 {
@@ -83,7 +82,6 @@ void instruction_list_to_c(node_t *list)
             P(" ;");
             break;
         default:
-            printf("UNEXPECTED ERROR");
             break;
         }
         free(curr);
@@ -124,7 +122,6 @@ void variable_to_c(node_t *node)
     }
     else
     {
-        // Es una asignacion/referenciación
         P("%s", (var->name));
     }
     free(var->name);
@@ -363,20 +360,16 @@ void expresion_to_c(node_t *exp)
 void if_to_c(node_t *node)
 {
     P("if (");
-    // se imprime la expression
     expresion_to_c(node->next_1);
     free(node->next_1);
     P(") {\n");
     node_t *block = node->next_2;
-    // se imprime la lista de instrucciones dentro del bloque del then del if
     instruction_list_to_c(block->next_1);
     free(block);
-    // si tiene un else
     if (node->next_3 != NULL)
     {
         P("\n} else {\n");
         block = node->next_3;
-        // se imprime la lista de instrucciones dentro del bloque del otherwise del if
         instruction_list_to_c(block->next_1);
         free(block);
     }
@@ -386,11 +379,9 @@ void if_to_c(node_t *node)
 void while_to_c(node_t *node)
 {
     P("while (");
-    // se imprime la expression
     expresion_to_c(node->next_1);
     free(node->next_1);
     P(") {\n");
-    // se imprime la lista de instrucciones dentro del bloque del then del while
     instruction_list_to_c(node->next_2->next_1);
     free(node->next_2);
     P("}\n");

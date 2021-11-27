@@ -58,7 +58,7 @@ int main(int argc, char **argv)
         program = NULL;
     }
 
-    if (check_and_set_variables(program) == -1)
+    if (validate_vars(program) == -1)
     {
         exit(-1);
     }
