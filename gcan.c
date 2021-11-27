@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     char compiling_line[512];
     sprintf(compiling_line, "gcc aux.c canvas_utils.c -lm -o %s", out_file);
     system(compiling_line);
-    //system("rm aux.c");
+    system("rm aux.c");
 
     printf("\nParsed successfully\n");
 }
