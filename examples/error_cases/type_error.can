@@ -1,0 +1,22 @@
+
+// type_error.can
+// Muestra los errores en type casting
+
+int i = 2;
+double j = f3.0;
+string k = "hola";
+int result;
+
+main:
+
+// Operacion int y double no deberian romper
+result = i + j;
+// esto si!
+result = i + k;
+// asi como asignacion directa
+k = j;
+
+//Logical structures no pueden contener strings
+if (k){
+    j = i + f0.1;
+}

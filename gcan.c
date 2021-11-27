@@ -18,12 +18,6 @@ char *out_file = "program";
 extern char *optarg;
 extern int optind, opterr, optopt;
 
-// #define ERROR(...)
-//     fprintf(stderr, "\033[38;2;255;0;0mERROR: ");
-//     fprintf(stderr, ##__VA_ARGS__);
-//     fprintf(stderr, "\x1b[0m\n");
-//     ;
-
 int main(int argc, char **argv)
 {
     int c;
@@ -89,7 +83,7 @@ int main(int argc, char **argv)
     char compiling_line[512];
     sprintf(compiling_line, "gcc aux.c canvas_utils.c -lm -o %s", out_file);
     system(compiling_line);
-    system("rm aux.c");
+    //system("rm aux.c");
 
     printf("\nParsed successfully\n");
 }

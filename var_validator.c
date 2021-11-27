@@ -7,47 +7,46 @@
 
 #define MAX_VAR_NAME_LENGTH 256
 
-#define ERROR(...)                                \
-    fprintf(stderr, "\033[38;2;255;0;0mERROR: "); \
-    fprintf(stderr, ##__VA_ARGS__);               \
-    fprintf(stderr, "\x1b[0m\n");                 \
+#define ERROR(...)                                   \
+    fprintf(stderr, "Error in symbol validation: "); \
+    fprintf(stderr, ##__VA_ARGS__);                  \
     ;
 
 int error = 0;
 
-typedef struct var_node
+typedef struct symbol_node
 {
     int var_type;
     char name[MAX_VAR_NAME_LENGTH];
     int references;
     int is_constant;
-    struct var_node *next;
-} var_node;
+    struct symbol_node *next;
+} symbol_node;
 
-var_node *create_var_node(int type, char *name, int is_constant);
-void add_to_list(var_node **list, var_node *element);
-void validate_vars_internal(node_t *tree, var_node **var_list);
-var_node *free_list(var_node *list);
-int check_if_exists(var_node *list, char *name, var_node **found);
-void validate_vars_rec(node_t *node, var_node **var_list);
-void check_var_types_in_value(int type, variable_node *variable_node_var, var_node *var_list);
-int check_var_type_in_expression(int type, node_t *expr, var_node *var_list);
-int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent);
-int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list);
+symbol_node *create_symbol_node(int type, char *name, int is_constant);
+void add_to_list(symbol_node **list, symbol_node *element);
+void validate_vars_internal(node_t *tree, symbol_node **var_list);
+symbol_node *free_list(symbol_node *list);
+int check_if_exists(symbol_node *list, char *name, symbol_node **found);
+void validate_vars_rec(node_t *node, symbol_node **var_list);
+void check_var_types_in_value(int type, variable_node *variable_node_var, symbol_node *var_list);
+int check_var_type_in_expression(int type, node_t *expr, symbol_node *var_list);
+int check_var_type_in_expression_rec(int type, node_t *node, symbol_node *var_list, node_t *parent);
+int check_var_type_in_cv_ops(int type, cv_op_node_t *node, symbol_node *var_list);
 static char *get_type_from_enum(int type);
 
 int validate_vars(node_t *tree)
-{ //inicializa la lista con un pseudo nodo para no pasar null
-    var_node varinit;
-    varinit.references = 2;
-    varinit.next = NULL;
-    varinit.var_type = -1;
-    var_node *var_list = &varinit;
+{
+    symbol_node init;
+    init.references = 2;
+    init.next = NULL;
+    init.var_type = -1;
+    symbol_node *var_list = &init;
     validate_vars_internal(tree, &var_list);
     return error;
 }
 
-void validate_vars_internal(node_t *tree, var_node **var_list)
+void validate_vars_internal(node_t *tree, symbol_node **var_list)
 {
     node_t *aux = tree;
     while (aux != NULL)
@@ -62,12 +61,13 @@ void validate_vars_internal(node_t *tree, var_node **var_list)
     }
 }
 
-void validate_vars_rec(node_t *node, var_node **var_list)
+// Llamada recursiva en exploracion de variables
+void validate_vars_rec(node_t *node, symbol_node **var_list)
 {
     switch (node->type)
     {
     case VARIABLE_NODE:;
-        var_node *found = NULL;
+        symbol_node *found = NULL;
 
         variable_node *variable_node_var = (variable_node *)node;
         if (variable_node_var->declared)
@@ -77,7 +77,7 @@ void validate_vars_rec(node_t *node, var_node **var_list)
                 ERROR("Variable %s already declared \n", variable_node_var->name);
                 error = -1;
             }
-            add_to_list(var_list, create_var_node(variable_node_var->var_type, variable_node_var->name, variable_node_var->is_constant));
+            add_to_list(var_list, create_symbol_node(variable_node_var->var_type, variable_node_var->name, variable_node_var->is_constant));
         }
         else
         {
@@ -104,8 +104,7 @@ void validate_vars_rec(node_t *node, var_node **var_list)
             check_var_types_in_value(variable_node_var->var_type, variable_node_var, *var_list);
         }
         break;
-    case WRITE_NODE: //el caso donde recibis algo como write <algo>
-        ;
+    case WRITE_NODE:;
         switch (node->next_1->type)
         {
         case VARIABLE_NODE:
@@ -131,10 +130,10 @@ void validate_vars_rec(node_t *node, var_node **var_list)
         }
         break;
 
-    case READ_NODE: //el caso donde es read <algo>
+    case READ_NODE:
         switch (node->next_1->type)
         {
-        case VARIABLE_NODE: //read variable
+        case VARIABLE_NODE:
             validate_vars_rec(node->next_1, var_list);
             int type = ((variable_node *)node->next_1)->var_type;
             if (type != INTEGER_TYPE && type != DOUBLE_TYPE)
@@ -169,32 +168,32 @@ void validate_vars_rec(node_t *node, var_node **var_list)
         break;
     case IF_NODE:
         if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
-        { // miro que la condicion sea valida
+        {
             ERROR("An if condition may only be numeric\n");
             error = -1;
         }
         (*var_list)->references++;
-        validate_vars_internal(node->next_2->next_1, var_list); //busco variables en el bloque del if
+        validate_vars_internal(node->next_2->next_1, var_list);
         ;
-        if (node->next_3 != NULL) //else es opcional
+        if (node->next_3 != NULL)
         {
             (*var_list)->references++;
-            validate_vars_internal(node->next_3->next_1, var_list); //busco variables en el bloque del else
+            validate_vars_internal(node->next_3->next_1, var_list);
         }
 
         break;
     case WHILE_NODE:
         if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
-        { //buscar variables en condicion
+        {
             ERROR("A while condition may only be numeric\n");
             error = -1;
         }
         (*var_list)->references++;
-        validate_vars_internal(node->next_2->next_1, var_list); //buscar variables en el bloque
+        validate_vars_internal(node->next_2->next_1, var_list);
         break;
     case RETURN_NODE:
         if (!check_var_type_in_expression(INTEGER_TYPE, node->next_1, *var_list))
-        { //buscar variables en condicion
+        {
             ERROR("A return statement may only be numeric\n");
             error = -1;
         }
@@ -210,11 +209,10 @@ void validate_vars_rec(node_t *node, var_node **var_list)
             error = -1;
         }
         if (!check_var_type_in_cv_ops(INTEGER_TYPE, op_node, *var_list))
-        { //buscar variables en condicion
+        {
             ERROR("Every coordenate parameter in cv operation %s should be numeric\n", (char *)op_node->op);
             error = -1;
         }
-        //  *var_list=free_list(*var_list);
         break;
     default:
         ERROR("UNKNOWN NODE");
@@ -222,7 +220,8 @@ void validate_vars_rec(node_t *node, var_node **var_list)
     }
 }
 
-void check_var_types_in_value(int type, variable_node *variable_node_var, var_node *var_list)
+// Evalua el tipo de una variable
+void check_var_types_in_value(int type, variable_node *variable_node_var, symbol_node *var_list)
 {
 
     switch (variable_node_var->value->type)
@@ -243,7 +242,7 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
         }
         break;
     case VARIABLE_NODE:;
-        var_node *found = NULL;
+        symbol_node *found = NULL;
         int type = check_if_exists(var_list, ((variable_node *)variable_node_var->value)->name, &found);
         if (type == -1)
         {
@@ -268,7 +267,8 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, var_no
     }
 }
 
-int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
+// Evalua que todas las variables en una expresion sean de un mismo tipo
+int check_var_type_in_expression(int type, node_t *expr, symbol_node *var_list)
 { // expresion tiene 3 espacios que no pueden ser todos nulos, esta llamada rompe la busqueda en cada uno
     if (expr->type == VARIABLE_NODE)
     {
@@ -279,7 +279,8 @@ int check_var_type_in_expression(int type, node_t *expr, var_node *var_list)
            check_var_type_in_expression_rec(type, expr->next_3, var_list, expr);
 }
 
-int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
+// Evalua que todas las variables en una operacion canvas
+int check_var_type_in_cv_ops(int type, cv_op_node_t *node, symbol_node *var_list)
 {
     return check_var_type_in_expression_rec(type, node->x, var_list, (node_t *)node) &&
            check_var_type_in_expression_rec(type, node->y, var_list, (node_t *)node) &&
@@ -287,8 +288,9 @@ int check_var_type_in_cv_ops(int type, cv_op_node_t *node, var_node *var_list)
            check_var_type_in_expression_rec(type, node->axis2, var_list, (node_t *)node);
 }
 
-int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list, node_t *parent)
-{ //resuelve el valor de expresiones
+// Evalua que todas las variables en una expresion sean de un mismo tipo recursivamente
+int check_var_type_in_expression_rec(int type, node_t *node, symbol_node *var_list, node_t *parent)
+{
     if (node == NULL)
     {
         return TRUE;
@@ -296,7 +298,7 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list,
     switch (node->type)
     {
     case VARIABLE_NODE:;
-        var_node *found = NULL;
+        symbol_node *found = NULL;
         variable_node *variable_node_var = (variable_node *)node;
         int type_var = check_if_exists(var_list, variable_node_var->name, &found);
         if (type_var == -1)
@@ -349,9 +351,10 @@ int check_var_type_in_expression_rec(int type, node_t *node, var_node *var_list,
     return FALSE; //SHOULD NOT BE HERE
 }
 
-var_node *create_var_node(int type, char *name, int is_constant)
-{ //inicializa un nodo de la lista de variables, arranca con 0 referencias para poder ser borrado en caso de ninguna referencia adicional
-    var_node *new = malloc(sizeof(var_node));
+// Crea un simbolo
+symbol_node *create_symbol_node(int type, char *name, int is_constant)
+{
+    symbol_node *new = malloc(sizeof(symbol_node));
     new->var_type = type;
     strcpy(new->name, name);
     new->references = 0;
@@ -360,8 +363,9 @@ var_node *create_var_node(int type, char *name, int is_constant)
     return new;
 }
 
-void add_to_list(var_node **list, var_node *element)
-{ //pone un nuevo nodo a la cabeza de la lista
+// Anade un simbolo a la tabla
+void add_to_list(symbol_node **list, symbol_node *element)
+{
     if (*list != NULL)
     {
         element->next = *list;
@@ -369,17 +373,18 @@ void add_to_list(var_node **list, var_node *element)
     *list = element;
 }
 
-var_node *free_list(var_node *list)
-{ //libera nodos de la lista hasta que tengan mas de 1 referencia, en donde deja de liberar y pone el nodo en el comienzo de la lista
+// Libera la tabla de simbolos
+symbol_node *free_list(symbol_node *list)
+{
     if (list == NULL)
     {
         return NULL;
     }
 
-    var_node *current = list;
+    symbol_node *current = list;
     while (current != NULL && current->references < 1)
     {
-        var_node *next = current->next;
+        symbol_node *next = current->next;
         free(current);
         current = next;
     }
@@ -390,12 +395,13 @@ var_node *free_list(var_node *list)
     return current;
 }
 
-int check_if_exists(var_node *list, char *name, var_node **found)
-{ //recorre la lista de variables y compara nombres, si no enuentra la variable devuelve -1
-    var_node *current = list;
+// Devuelve el tipo de una variable si existe, -1 si no.
+int check_if_exists(symbol_node *list, char *name, symbol_node **found)
+{
+    symbol_node *current = list;
     while (current != NULL)
     {
-        var_node *next = current->next;
+        symbol_node *next = current->next;
         if (strcmp(current->name, name) == 0)
         {
             *found = current;
@@ -406,6 +412,7 @@ int check_if_exists(var_node *list, char *name, var_node **found)
     return -1;
 }
 
+//Devuelve la representacion textual de un tipo de datos
 static char *get_type_from_enum(int type)
 {
     switch (type)

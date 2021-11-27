@@ -1,5 +1,5 @@
-#ifndef _TREE_H_
-#define _TREE_H_
+#ifndef _AST_H_
+#define _AST_H_
 
 #define TRUE 1
 #define FALSE 0

@@ -16,7 +16,11 @@ typedef struct canvas_ref
     struct canvas_ref *next;
 } canvas_ref;
 
+// Lista de canvas por liberar, uso un int to free que representa la cantidad de canvas que existen adentro
+// de una estructura while o if. Esto impide que se liberen canvas afuera de las estructuras
+// donde fueron definidas
 canvas_ref *canvas_list;
+int to_free = 0;
 
 void yyerror(node_t **program, char *s);
 
@@ -30,21 +34,15 @@ void instruction_list_to_c(node_t *list);
 void if_to_c(node_t *node);
 void while_to_c(node_t *node);
 
+//Libera los canvas
+void free_all_cvs();
+void free_cvs_to_free();
+
 void tree_to_c(node_t *program, FILE *file)
 {
-
     output = file;
-
     instruction_list_to_c(program);
-
-    canvas_ref *aux = canvas_list;
-    while (aux != NULL)
-    {
-        canvas_ref *next = aux->next;
-        P("free(%s.canvas_mat);\n", aux->name);
-        free(aux);
-        aux = next;
-    }
+    free_all_cvs();
 }
 
 void instruction_list_to_c(node_t *list)
@@ -115,6 +113,7 @@ void variable_to_c(node_t *node)
             strcpy(cv_ref->name, var->name);
             cv_ref->next = canvas_list;
             canvas_list = cv_ref;
+            to_free++;
             break;
         default:
             break;
@@ -164,7 +163,6 @@ void variable_to_c(node_t *node)
 
 void write_to_c(node_t *node)
 {
-    // dependiendo del tipo de contenido del print se corre una función distinta
 
     switch (node->next_1->type)
     {
@@ -302,6 +300,7 @@ void cv_op_to_c(node_t *node)
     P("\n");
     free(op_node->var);
 }
+
 void switch_expresion_to_c(node_t *node)
 {
     switch (node->type)
@@ -328,7 +327,6 @@ void switch_expresion_to_c(node_t *node)
 
 void expresion_to_c(node_t *exp)
 {
-    //May not be an expression! beware
     if (exp->type == VARIABLE_NODE)
     {
         switch_expresion_to_c(exp);
@@ -365,6 +363,7 @@ void expresion_to_c(node_t *exp)
 
 void if_to_c(node_t *node)
 {
+    to_free = 0;
     P("if (");
     expresion_to_c(node->next_1);
     free(node->next_1);
@@ -379,16 +378,45 @@ void if_to_c(node_t *node)
         instruction_list_to_c(block->next_1);
         free(block);
     }
+    free_cvs_to_free();
     P("}\n");
 }
 
 void while_to_c(node_t *node)
 {
+    to_free = 0;
     P("while (");
     expresion_to_c(node->next_1);
     free(node->next_1);
     P(") {\n");
     instruction_list_to_c(node->next_2->next_1);
     free(node->next_2);
+    free_cvs_to_free();
     P("}\n");
+}
+
+void free_cvs_to_free()
+{
+    canvas_ref *aux = canvas_list;
+    while (aux != NULL && to_free)
+    {
+        canvas_ref *next = aux->next;
+        P("free(%s.canvas_mat);\n", aux->name);
+        free(aux);
+        aux = next;
+        to_free--;
+    }
+    canvas_list = aux;
+}
+void free_all_cvs()
+{
+    canvas_ref *aux = canvas_list;
+    while (aux != NULL)
+    {
+        canvas_ref *next = aux->next;
+        P("free(%s.canvas_mat);\n", aux->name);
+        free(aux);
+        aux = next;
+    }
+    canvas_list = NULL;
 }

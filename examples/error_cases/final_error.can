@@ -1,0 +1,13 @@
+// final_error.can
+// Muestra los errores en asignacion de cosntantes
+
+final int n_ct = 1;
+final string str_ct = "Soy FINAL";
+int variable = 3;
+string changable = "cambio";
+
+main:
+variable = variable + 3;
+changable = "otro";
+n_ct = 3;
+str_ct = "se podra?";

@@ -1,0 +1,13 @@
+
+// scope_error.can
+// Muestra los errores de scoping al usar variables fuera de donde corresponden
+
+main:
+while(1){
+    if (3 > 2){
+        int i = 0;
+    }
+    canvas cv = {3,3};
+    i = 2*1;
+}
+cv dot {1,2};
