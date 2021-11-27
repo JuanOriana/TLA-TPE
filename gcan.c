@@ -1,6 +1,7 @@
 #include "include/ast.h"
 #include "include/var_validator.h"
 #include "include/ast_to_c.h"
+#include <getopt.h>
 
 #include "y.tab.h"
 #include <stdio.h>
@@ -12,6 +13,10 @@ extern int yylineno;
 extern FILE *yyin;
 FILE *out;
 node_t *program;
+char *out_file = "program";
+
+extern char *optarg;
+extern int optind, opterr, optopt;
 
 // #define ERROR(...)
 //     fprintf(stderr, "\033[38;2;255;0;0mERROR: ");
@@ -21,30 +26,43 @@ node_t *program;
 
 int main(int argc, char **argv)
 {
-
-    if (argc == 1)
+    int c;
+    while (1)
     {
-        printf("Leyendo de entrada estandar\n");
-    }
-    else if (argc == 2)
-    {
-        yyin = fopen(argv[1], "r");
-        if (yyin == NULL)
+        c = getopt(argc, argv, "o:");
+        if (c == -1)
+            break;
+        if (c == 'o')
         {
-            perror("No se pudo abrir el archivo");
+            out_file = optarg;
+        }
+    }
+    if (optind >= argc)
+    {
+        printf("Reading program from STDIN\n");
+    }
+    else if (optind < argc - 1)
+    {
+        if (optind < argc - 1)
+        {
+            fprintf(stderr, "Usage: %s [-o] [in.file]\n", argv[0]);
             exit(EXIT_FAILURE);
         }
     }
     else
     {
-        printf("Uso: %s [archivo.can]\n", argv[0]);
-        exit(EXIT_FAILURE);
+        yyin = fopen(argv[optind], "r");
+        if (yyin == NULL)
+        {
+            perror("File can not be opened");
+            exit(EXIT_FAILURE);
+        }
     }
 
     out = fopen("aux.c", "w+");
     if (out == NULL)
     {
-        perror("Error creando el archivo temporal");
+        perror("Error creating auxiliary file");
         exit(EXIT_FAILURE);
     }
 
@@ -68,11 +86,12 @@ int main(int argc, char **argv)
     fprintf(out, "return 0;\n");
     fprintf(out, "\n}");
     fclose(out);
-
-    system("gcc aux.c canvas_utils.c -lm -o program");
+    char compiling_line[512];
+    sprintf(compiling_line, "gcc aux.c canvas_utils.c -lm -o %s", out_file);
+    system(compiling_line);
     system("rm aux.c");
 
-    printf("\nSuccesfully parsed\n");
+    printf("\nParsed successfully\n");
 }
 
 void yyerror(node_t **param, char *err_msg)
