@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-// Prints C representation of program in file
+// Lleva el AST a una representacion en C
 void tree_to_c(node_t *program, FILE *file);
 
 #endif

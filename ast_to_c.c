@@ -24,6 +24,7 @@ int to_free = 0;
 
 void yyerror(node_t **program, char *s);
 
+// Conversion a c
 void write_to_c(node_t *node);
 void read_to_c(node_t *node);
 void plot_to_c(node_t *node);

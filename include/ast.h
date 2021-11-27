@@ -4,7 +4,7 @@
 #define TRUE 1
 #define FALSE 0
 
-//Referencia para idea general:https://github.com/habi-a/C-Interpretor/blob/master/src/ast.c
+//Referencia para idea general: https://github.com/habi-a/C-Interpretor/blob/master/src/ast.c
 
 typedef enum node_type
 {

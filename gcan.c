@@ -53,6 +53,22 @@ int main(int argc, char **argv)
         }
     }
 
+    // Evaluacion semantica y construccion de AST
+    yyparse(&program);
+
+    if (program && program->next_1 == NULL)
+    {
+        free(program);
+        program = NULL;
+    }
+
+    // Validacion simbolica
+    if (validate_vars(program) == -1)
+    {
+        exit(-1);
+    }
+
+    // Llevado del AST a un .c
     out = fopen("aux.c", "w+");
     if (out == NULL)
     {
@@ -62,24 +78,12 @@ int main(int argc, char **argv)
 
     fprintf(out, "#include <stdio.h>\n#include \"./include/canvas_utils.h\"\nint main() {\n");
 
-    yyparse(&program);
-
-    if (program && program->next_1 == NULL)
-    {
-        free(program);
-        program = NULL;
-    }
-
-    if (validate_vars(program) == -1)
-    {
-        exit(-1);
-    }
-
     tree_to_c(program, out);
-
     fprintf(out, "return 0;\n");
     fprintf(out, "\n}");
     fclose(out);
+
+    // Compilacion del .c
     char compiling_line[512];
     sprintf(compiling_line, "gcc aux.c canvas_utils.c -lm -o %s", out_file);
     system(compiling_line);
