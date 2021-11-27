@@ -3,7 +3,7 @@
 #include "y.tab.h"
 #include <stdio.h>
 
-// int fileno(FILE * stream);
+int fileno(FILE * stream);
 
 // void put_trimmed(char * str) {
 //     int i; for(i=0; str[i]!=' '; i++);
