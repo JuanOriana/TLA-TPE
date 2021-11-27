@@ -1,3 +1,6 @@
+// fibo.can
+// Imprime la secuencia fibonacci hasta una iteracion i;
+
 main:
     int i = 2;
     int n;

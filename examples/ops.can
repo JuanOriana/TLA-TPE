@@ -1,5 +1,11 @@
-double n1 = f0.9;
-int n2 = 3;
+// ops.can
+// Inicialmente muestra el comportamiento de las distintas operaciones habilitadas
+// Finalmente le ofrece al usuario la posiblidad de elejir un paso N
+// Divide al numero 1 en N pasos y luego los suma para volver a 1
+// Luego verifica si el resultado de la suma es realmente igual a 1 (chequeo de precision numerica)
+
+final double n1 = f0.9;
+final int n2 = 3;
 
 main:
 write ("Bienvenido al evaluador matematico!\n\n");

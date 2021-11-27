@@ -87,7 +87,7 @@ void validate_vars_rec(node_t *node, var_node **var_list)
                 ERROR("Variable %s is not declared yet\n", variable_node_var->name);
                 error = -1;
             }
-            else if (found->is_constant)
+            else if (found->is_constant && variable_node_var->value != NULL)
             {
                 ERROR("Variable %s is final and yet trying to be assigned a value\n", variable_node_var->name);
                 error = -1;

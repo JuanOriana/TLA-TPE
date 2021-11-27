@@ -1,3 +1,6 @@
+// faces.can
+// Imprime una carita distinta dependiendo de como te sentis del 1 al 10
+
 int mood = 0;
 canvas happy = {20,10};
 canvas medium = {20,10};

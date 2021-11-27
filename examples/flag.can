@@ -1,8 +1,12 @@
+// fibo.can
+// Imprime algunas banderas del mundo;
+
 canvas arg = {27, 9};
 canvas suiza = {31, 10};
 canvas usa = {31,10};
 canvas greece = {31, 10};
 int i = 0;
+
 main:
 write("\nArgentina\n");
 while (i < 3){
