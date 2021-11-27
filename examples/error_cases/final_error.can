@@ -1,5 +1,5 @@
 // final_error.can
-// Muestra los errores en asignacion de cosntantes
+// Muestra los errores en asignacion de constantes
 
 final int n_ct = 1;
 final string str_ct = "Soy FINAL";

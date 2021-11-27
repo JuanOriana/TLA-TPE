@@ -1,6 +1,6 @@
 // prime.can
 // Se elije un numero maximo y se evalua la primalidad de todos los enteros hasta ese numero
-// Luego de eso grafica los primos encontrados en un canvas (hasta el numero 100)
+// Luego de eso grafica los primos encontrados en un canvas (hasta el numero 99)
 
 int start = 0;
 int max;

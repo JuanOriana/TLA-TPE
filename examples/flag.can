@@ -1,4 +1,4 @@
-// fibo.can
+// flag.can
 // Imprime algunas banderas del mundo;
 
 canvas arg = {27, 9};
