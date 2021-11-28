@@ -95,6 +95,6 @@ int main(int argc, char **argv)
 
 void yyerror(node_t **param, char *err_msg)
 {
-    printf("%s at line %d", err_msg, yylineno);
+    printf("%s at line %d\n", err_msg, yylineno);
     exit(1);
 }
