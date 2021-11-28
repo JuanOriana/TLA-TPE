@@ -9,10 +9,7 @@
 extern int yylex();
 void yyerror(node_t ** program, char *s);
 
-// extern FILE * out;
-// extern void * malloc();
-
-// int yydebug = 1;
+extern FILE * out;
 int in_main = FALSE;
 
 %}

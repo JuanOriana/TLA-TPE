@@ -5,13 +5,13 @@
 
 int fileno(FILE * stream);
 
-// void put_trimmed(char * str) {
-//     int i; for(i=0; str[i]!=' '; i++);
-//     memcpy(yylval.string, str, i);
-//     yylval.string[i] = 0;
-// }
+void put_trimmed(char * str) {
+    int i; for(i=0; str[i]!=' '; i++);
+    memcpy(yylval.string, str, i);
+    yylval.string[i] = 0;
+}
 
-// extern int reduced;
+extern int reduced;
 
 %}
 

@@ -138,7 +138,7 @@ void validate_vars_rec(node_t *node, symbol_node **var_list)
             int type = ((variable_node *)node->next_1)->var_type;
             if (type != INTEGER_TYPE && type != DOUBLE_TYPE)
             {
-                ERROR("Variable %s in read not of type numeric \n", ((variable_node *)node->next_1)->name);
+                ERROR("Variable %s in read not of numeric type \n", ((variable_node *)node->next_1)->name);
                 error = -1;
             }
             break;
@@ -237,7 +237,7 @@ void check_var_types_in_value(int type, variable_node *variable_node_var, symbol
     case EXPRESSION_NODE:;
         if (!check_var_type_in_expression(type, (node_t *)variable_node_var->value, var_list))
         {
-            ERROR("Variable %s is trying to be assigned an expresion with non-numeral values\n", variable_node_var->name);
+            ERROR("Variable %s is trying to be assigned an expresion with non-numeric values\n", variable_node_var->name);
             error = -1;
         }
         break;
