@@ -20,6 +20,7 @@ extern int optind, opterr, optopt;
 
 int main(int argc, char **argv)
 {
+    // Option parsing
     int c;
     while (1)
     {

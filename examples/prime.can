@@ -11,6 +11,10 @@ canvas cv = {26,11};
 main:
 write("Escribe hasta que primo quieres probar: ");
 read(max);
+if (max > 1000){
+    write("Solo se pueden ingresar numeros hasta el 1000!\n");
+    return -1;
+}
 write("\n");
 
 // Y labels

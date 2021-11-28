@@ -83,24 +83,19 @@ node_t *declare_constant_variable_node(char *name, int var_type);
 node_t *add_value_variable(node_t *var_node, node_t *expression);
 node_t *assign_variable_node(char *name, node_t *expression);
 node_t *add_variable_reference(char *name);
-
 node_t *add_generic_cv_op_node(node_t *var, void *op, char *data, node_t *x, node_t *y, node_t *axis, node_t *axis2);
-
 node_t *add_expression_node(node_t *first, node_t *second, node_t *third);
 node_t *add_instruction_node(node_t *node_t);
 node_t *add_instruction_list_node(node_t *node_t);
 node_t *add_element_to_list(node_t *list, node_t *element);
-
 node_t *add_write_node(node_t *content);
 node_t *add_read_node(node_t *content);
 node_t *add_bin_cv_op_node(char *operation, node_t *canvas, node_t *first, node_t *second);
 node_t *add_plot_node(node_t *content);
-
 node_t *add_string_node(char *text);
 node_t *add_integer_node(char *integer);
 node_t *add_double_node(char *floating);
 node_t *add_canvas_node(char *width, char *height);
-
 node_t *add_block_node(node_t *list);
 node_t *add_if_node(node_t *condition, node_t *then, node_t *otherwise);
 node_t *add_while_node(node_t *condition, node_t *block);

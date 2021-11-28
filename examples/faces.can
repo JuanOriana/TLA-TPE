@@ -54,6 +54,7 @@ angry color {1};
 
 write("Como te sentis hoy del 1 al 10?: ");
 read(mood);
+// Seleccion de mood
 if (mood <= 2){
     plot(angry);
     return 0;

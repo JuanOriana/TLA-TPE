@@ -8,6 +8,7 @@ canvas greece = {31, 10};
 int i = 0;
 
 main:
+// ARGENTINA
 write("\nArgentina\n");
 while (i < 3){
     arg hor {0,26,i};
@@ -23,6 +24,14 @@ while (i < 3){
 arg color {4};
 plot (arg);
 
+// USA
+write ("\USA\n");
+usa fill {0,0,30,9,'='};
+usa fill {0,0,10,4,'*'};
+usa vert {0,4,10};
+plot (usa);
+
+// SUIZA
 write ("\nSuiza\n");
 suiza fill {0,0,30,9,'#'};
 suiza fill {13,2,17,7,' '};
@@ -30,12 +39,7 @@ suiza fill {10,4,20,5,' '};
 suiza color {1};
 plot (suiza);
 
-write ("\nUnited States of America\n");
-usa fill {0,0,30,9,'='};
-usa fill {0,0,10,4,'*'};
-usa vert {0,4,10};
-plot (usa);
-
+// GRECIA
 write ("\nGrecia\n");
 greece fill {0,0,30,9,'='};
 greece fill {3,1,5,3,' '};
