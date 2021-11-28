@@ -7,3 +7,4 @@ gcan
 program
 *.dSYM
 .idea
+aux.c
