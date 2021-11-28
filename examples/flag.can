@@ -25,7 +25,7 @@ arg color {4};
 plot (arg);
 
 // USA
-write ("\USA\n");
+write ("USA\n");
 usa fill {0,0,30,9,'='};
 usa fill {0,0,10,4,'*'};
 usa vert {0,4,10};
