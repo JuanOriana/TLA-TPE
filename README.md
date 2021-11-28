@@ -1,6 +1,6 @@
 # Trabajo Práctico Especial - TLA
 En este trabajo se presenta el diseño de la grámatica y compilador del lenguaje **Canvalize**. Para mas detalles sobre su proposito y diseño ver el informe en
-directorio *./docs/informe.pdf*
+directorio *./docs*
 
 ## Construcción y ejecucción
 Para construir el proyecto, es tan facil como hacer un make en el directorio principal
